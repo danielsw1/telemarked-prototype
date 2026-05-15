@@ -615,7 +615,8 @@
   .hairline { border-top: 1px solid rgba(18,18,18,0.08); }
 
   /* Sticky-stage rounded mesh */
-  .stage-mesh {
+  .stage-mesh { background: transparent !important; --legacy-stage-mesh: 0; }
+  .stage-mesh-DISABLED {
     background:
       radial-gradient(60% 60% at 50% 40%, rgba(255,107,53,0.10), transparent 60%),
       radial-gradient(60% 60% at 30% 80%, rgba(26,37,64,0.05), transparent 60%),
@@ -902,6 +903,23 @@
     #hero-phone { clip-path: ellipse(48% 49% at 50% 50%) !important; }
   }
 
+
+  /* v2.11: mask testing phone the same way as hero — proven to kill white-bg cleanly */
+  #testing img {
+    -webkit-mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
+            mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
+    mix-blend-mode: multiply !important;
+  }
+
+
+  /* v2.11: trace SVG must be above iPhone img to be visible */
+  #testing #trace-line { z-index: 15 !important; }
+  #testing img { position: relative; z-index: 5 !important; }
+  /* The current-test label needs to stay on top too */
+  .phone-current-test { z-index: 20 !important; }
+  .phone-count { z-index: 20 !important; }
+  /* Subtly lower mask opacity so trace-line is visible THROUGH the phone where it overlaps */
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -1139,7 +1157,7 @@
 
 
             <!-- v2.10: scroll-drawn paint line - traces around and through the phone -->
-            <svg id="trace-line" class="absolute inset-0 pointer-events-none" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="z-index:8;">
+            <svg id="trace-line" class="absolute inset-0 pointer-events-none" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="z-index:15;">
               <defs>
                 <linearGradient id="trace-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#FF6B35"/>
@@ -1147,15 +1165,15 @@
                   <stop offset="100%" stop-color="#1B6E2F"/>
                 </linearGradient>
                 <filter id="trace-blur" x="-10%" y="-10%" width="120%" height="120%">
-                  <feGaussianBlur stdDeviation="0.4"/>
+                  <feGaussianBlur stdDeviation="1.5"/>
                 </filter>
               </defs>
               <!-- A continuous flowing path that threads through the phone area -->
               <path id="trace-path"
-                    d="M 50 60 Q 100 30, 180 50 T 350 80 Q 380 150, 340 200 T 280 290 Q 260 340, 300 380 T 240 450 Q 180 470, 130 440 T 80 360 Q 60 290, 100 240 T 150 170 Q 130 110, 80 90 Z"
+                    d="M 80 60 C 130 30, 200 25, 260 55 S 360 130, 350 220 S 320 350, 230 410 S 90 420, 70 320 S 40 180, 100 90"
                     fill="none"
                     stroke="url(#trace-grad)"
-                    stroke-width="4"
+                    stroke-width="6"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     filter="url(#trace-blur)"

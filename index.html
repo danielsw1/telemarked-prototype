@@ -1247,7 +1247,7 @@
       <!-- Letterhead -->
       <header class="report-head">
         <div>
-          <div class="wordmark text-[26px] md:text-[30px] text-ink leading-none"></div>
+          <div class="wordmark text-[26px] md:text-[30px] text-ink leading-none"><span class="tele">Tele</span><span class="marked">marked</span><span class="dot">.</span></div>
           <div class="text-[10px] uppercase tracking-[0.22em] text-ink/45 mt-2 font-semibold">Sertifiseringsrapport</div>
         </div>
         <div class="report-head-right">
@@ -2035,7 +2035,9 @@
   }
 
   // ───────── v2.17: Scroll-driven report animation ─────────
-  if (window.gsap && window.ScrollTrigger) {
+  // Skip ScrollTrigger if ?testpct=N is set (testpct script takes over and we don't want scroll to override it)
+  const _testpctActive = new URLSearchParams(window.location.search).has('testpct');
+  if (window.gsap && window.ScrollTrigger && !_testpctActive) {
     gsap.registerPlugin(ScrollTrigger);
 
     const reportCard = document.getElementById('report-card');

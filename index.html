@@ -752,6 +752,56 @@
   .phone-cp.on { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; border-color: #1B6E2F !important; }
   .phone-cp.on::after { background: #1B6E2F !important; }
 
+
+  /* v2.8: stronger hero photo fix — mask-image fades the photo's white edges */
+  #hero-phone {
+    -webkit-mask-image: radial-gradient(ellipse 70% 92% at center, #000 55%, transparent 100%);
+            mask-image: radial-gradient(ellipse 70% 92% at center, #000 55%, transparent 100%);
+    filter: none !important;
+    mix-blend-mode: normal !important;
+  }
+  /* Also fade the testing-section phone */
+  #testing img {
+    -webkit-mask-image: radial-gradient(ellipse 75% 92% at center, #000 55%, transparent 100%);
+            mask-image: radial-gradient(ellipse 75% 92% at center, #000 55%, transparent 100%);
+    mix-blend-mode: normal !important;
+  }
+
+
+  /* v2.8: cinematic test animation */
+  .phone-cinema { position:absolute; inset:0; pointer-events:none; z-index:5; }
+  .paint-trail { position:absolute; inset:0; width:100%; height:100%; z-index:4; overflow:visible; }
+  .paint-trail #paint-path { transition: stroke-dashoffset 0.4s linear; filter: drop-shadow(0 0 10px rgba(255,107,53,0.45)); }
+
+  /* Phone polish - desaturated start, vibrant end */
+  #testing img {
+    transition: filter 600ms cubic-bezier(.2,.8,.2,1), transform 800ms cubic-bezier(.2,.8,.2,1);
+    filter: saturate(var(--polish-sat, 0.4)) brightness(var(--polish-bright, 0.92));
+    transform: rotate(var(--polish-rot, -2deg));
+  }
+
+  /* Shimmer at 100% */
+  .phone-shimmer { position:absolute; inset:8% 22%; border-radius:36px; opacity:0; background: linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255,255,255,0.55) 50%, transparent 62%, transparent 100%); background-size: 220% 100%; background-position: -100% 0; transition: opacity 320ms ease; z-index:6; pointer-events:none; mix-blend-mode: screen; }
+  .phone-shimmer.glow { opacity: 1; animation: phoneShine 1.6s ease-in-out 1; }
+  @keyframes phoneShine { 0% { background-position: -100% 0; } 100% { background-position: 200% 0; } }
+
+  /* Current test floating label */
+  .phone-current-test {
+    position:absolute; top: -50px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background:#121212; color:#fff; padding:10px 18px; border-radius:999px;
+    font-size:13px; font-weight:700; letter-spacing:0.02em;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    opacity:0; transition: opacity 280ms ease, transform 280ms cubic-bezier(.2,1.6,.4,1);
+    white-space:nowrap; z-index:7;
+  }
+  .phone-current-test.show {
+    opacity:1; transform: translateX(-50%) translateY(0);
+  }
+  .phone-current-test::before { content:'✓'; color:#1B6E2F; font-weight:900; margin-right:6px; }
+
+  .phone-count { position:absolute; bottom: -56px; left:50%; transform:translateX(-50%); background:#121212; color:#fff; padding:8px 18px; border-radius:999px; font-size:13px; font-weight:700; box-shadow:0 8px 22px rgba(0,0,0,0.18); z-index:7; white-space:nowrap; }
+  .phone-count .muted { color:#888; font-weight:500; margin-left:6px; }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -997,27 +1047,29 @@
               <div class="text-[10px] font-medium mt-1 text-green-700/80">14/14 bestått</div>
             </div>
 
-            <!-- v2.6: zone checkpoints (sibling of cert-stamp, inside aspect-[4/5] card) -->
-            <div class="phone-fx" aria-hidden="true">
-              <div class="phone-cp" id="cp-battery" data-label="Batteri" style="left:35%; top:82%;"></div>
-              <div class="phone-cp" id="cp-screen" data-label="Skjerm" style="left:63%; top:45%;"></div>
-              <div class="phone-cp" id="cp-front-cam" data-label="Front-kamera" style="left:63%; top:14%;"></div>
-              <div class="phone-cp" id="cp-back-cam" data-label="Bak-kamera" style="left:31%; top:22%;"></div>
-              <div class="phone-cp" id="cp-faceid" data-label="Face ID" style="left:58%; top:12%;"></div>
-              <div class="phone-cp" id="cp-speaker" data-label="Høyttalere" style="left:63%; top:9%;"></div>
-              <div class="phone-cp" id="cp-mic" data-label="Mikrofon" style="left:63%; top:92%;"></div>
-              <div class="phone-cp" id="cp-buttons" data-label="Knapper" style="left:77%; top:38%;"></div>
-              <div class="phone-cp" id="cp-port" data-label="Lade-port" style="left:63%; top:96%;"></div>
-              <div class="phone-cp" id="cp-wifi" data-label="WiFi" style="left:45%; top:55%;"></div>
-              <div class="phone-cp" id="cp-bluetooth" data-label="Bluetooth" style="left:45%; top:68%;"></div>
-              <div class="phone-cp" id="cp-gps" data-label="GPS" style="left:75%; top:60%;"></div>
-              <div class="phone-cp" id="cp-vibration" data-label="Vibrasjon" style="left:75%; top:75%;"></div>
-              <div class="phone-cp" id="cp-touch" data-label="Touch-respons" style="left:58%; top:58%;"></div>
-              <div class="phone-fill" id="phone-fill"></div>
+            <!-- v2.8: cinematic test animation - paint trail + phone polish -->
+            <div class="phone-cinema" aria-hidden="true">
+              <svg class="paint-trail" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="paint-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FF6B35"/>
+                    <stop offset="50%" stop-color="#FFAA70"/>
+                    <stop offset="100%" stop-color="#1B6E2F"/>
+                  </linearGradient>
+                </defs>
+                <!-- A swirling path around the phone region -->
+                <path id="paint-path" d="M 80 100 C 120 50, 280 50, 320 100 S 380 200, 350 280 S 300 420, 200 440 S 80 400, 60 320 S 30 180, 80 100 Z"
+                      fill="none" stroke="url(#paint-grad)" stroke-width="5" stroke-linecap="round"
+                      stroke-dasharray="1500" stroke-dashoffset="1500"/>
+              </svg>
+              <div class="phone-current-test" id="phone-current-test"></div>
+              <div class="phone-shimmer" id="phone-shimmer"></div>
               <div class="phone-count">
-                <span id="phone-count-num">0</span><span class="muted">/14</span>
+                <span id="phone-count-num">0</span><span class="muted">/14 sjekkpunkter</span>
               </div>
             </div>
+
+
 
           </div>
 
@@ -1774,24 +1826,37 @@
         if (passed >= total) stamp.classList.add('show');
         else stamp.classList.remove('show');
 
-        // v2.4: visible checkpoints + count + fill
-        const fillEl = document.getElementById('phone-fill');
-        if (fillEl) fillEl.style.height = (passed / total * 100) + '%';
+        // v2.8: cinematic test driver — paint trail + polish filter + current test label + shimmer
+        const tests = ['Batteri','Skjerm','Front-kamera','Bak-kamera','Face ID','Høyttalere','Mikrofon','Knapper','Lade-port','WiFi','Bluetooth','GPS','Vibrasjon','Touch-respons'];
+        // Phone polish CSS variables
+        const testingPhoneImg = document.querySelector('#testing img');
+        if (testingPhoneImg) {
+          const sat = 0.4 + (passed / total) * 0.8;
+          const bright = 0.92 + (passed / total) * 0.15;
+          const rot = -3 + (passed / total) * 6;
+          testingPhoneImg.style.setProperty('--polish-sat', sat.toFixed(2));
+          testingPhoneImg.style.setProperty('--polish-bright', bright.toFixed(2));
+          testingPhoneImg.style.setProperty('--polish-rot', rot.toFixed(1) + 'deg');
+        }
+        // Paint trail
+        const paint = document.getElementById('paint-path');
+        if (paint) paint.style.strokeDashoffset = String(1500 * (1 - passed / total));
+        // Current test label
+        const labelEl = document.getElementById('phone-current-test');
+        if (labelEl) {
+          if (passed > 0 && passed <= total) {
+            labelEl.textContent = tests[passed - 1];
+            labelEl.classList.add('show');
+          } else {
+            labelEl.classList.remove('show');
+          }
+        }
+        // Count
         const countNum = document.getElementById('phone-count-num');
         if (countNum) countNum.textContent = passed;
-        const cpIds = ['cp-battery','cp-screen','cp-front-cam','cp-back-cam','cp-faceid','cp-speaker','cp-mic','cp-buttons','cp-port','cp-wifi','cp-bluetooth','cp-gps','cp-vibration','cp-touch'];
-        cpIds.forEach((id, idx) => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          const wasOn = el.classList.contains('on');
-          const shouldBeOn = idx < passed;
-          el.classList.toggle('on', shouldBeOn);
-          // Show label briefly when newly turning on
-          if (!wasOn && shouldBeOn) {
-            el.classList.add('recent');
-            setTimeout(() => el.classList.remove('recent'), 1100);
-          }
-        });
+        // Shimmer at 100%
+        const shimmer = document.getElementById('phone-shimmer');
+        if (shimmer) shimmer.classList.toggle('glow', passed >= total);
 
         // Scan beam — animate y-position with progress within section
         const beamTop = Math.min(100, p * 110);

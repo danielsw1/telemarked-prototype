@@ -230,58 +230,69 @@
     });
   })();
 
-  // ───────── v2: Compare tool ─────────
+  // ───────── v2.2: Compare tool (inline styles — Tailwind play CDN doesn't compile runtime-added classes) ─────────
   (function(){
     const grid = document.getElementById('compare-grid');
     const chips = document.getElementById('compare-chips');
-    if (!grid) return;
+    if (!grid || !chips) return;
+    const ACCENT = '#FF6B35';
     const models = [
-      { handle:'apple-iphone-12',         name:'iPhone 12',         price:'2 590 kr', screen:'6.1"', camera:'Dobbelt 12MP', battery:'2815 mAh', weight:'164g', cond:'Pent / Godt' },
-      { handle:'apple-iphone-13',         name:'iPhone 13',         price:'4 390 kr', screen:'6.1"', camera:'Dobbelt 12MP', battery:'3240 mAh', weight:'173g', cond:'Pent / Godt' },
+      { handle:'apple-iphone-12',         name:'iPhone 12',         price:'2 590 kr', screen:'6.1"',           camera:'Dobbelt 12MP', battery:'2815 mAh', weight:'164g', cond:'Pent / Godt' },
+      { handle:'apple-iphone-13',         name:'iPhone 13',         price:'4 390 kr', screen:'6.1"',           camera:'Dobbelt 12MP', battery:'3240 mAh', weight:'173g', cond:'Pent / Godt' },
       { handle:'apple-iphone-13-pro',     name:'iPhone 13 Pro',     price:'5 490 kr', screen:'6.1" ProMotion', camera:'Trippel 12MP', battery:'3095 mAh', weight:'203g', cond:'Nesten ny' },
       { handle:'apple-iphone-13-pro-max', name:'iPhone 13 Pro Max', price:'6 290 kr', screen:'6.7" ProMotion', camera:'Trippel 12MP', battery:'4352 mAh', weight:'238g', cond:'Nesten ny / Pent' },
-      { handle:'apple-iphone-14',         name:'iPhone 14',         price:'6 390 kr', screen:'6.1"', camera:'Dobbelt 12MP', battery:'3279 mAh', weight:'172g', cond:'Nesten ny' },
+      { handle:'apple-iphone-14',         name:'iPhone 14',         price:'6 390 kr', screen:'6.1"',           camera:'Dobbelt 12MP', battery:'3279 mAh', weight:'172g', cond:'Nesten ny' },
     ];
     let selected = ['apple-iphone-13', 'apple-iphone-13-pro', 'apple-iphone-13-pro-max'];
 
+    function chipStyle(on) {
+      return 'display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid ' + (on ? ACCENT : '#e6e6e6') + ';background:' + (on ? ACCENT : '#FAFAF8') + ';color:' + (on ? '#fff' : '#121212') + ';cursor:pointer;transition:all 180ms ease;';
+    }
     function renderChips() {
       chips.innerHTML = models.map(m => {
         const on = selected.includes(m.handle);
-        return `<button class="px-4 py-2 rounded-full text-sm font-semibold transition-all ${on ? 'bg-accent text-white' : 'bg-paper text-ink hover:bg-ink/10'}" data-h="${m.handle}">${m.name}</button>`;
+        return '<button data-h="' + m.handle + '" style="' + chipStyle(on) + '">' + (on ? '✓ ' : '+ ') + m.name + '</button>';
       }).join('');
     }
     function render() {
       const items = selected.map(h => models.find(m => m.handle === h)).filter(Boolean);
-      const rows = [
-        { label: 'Modell', key: 'name', best: null },
-        { label: 'Pris (fra)', key: 'price', best: null },
-        { label: 'Skjerm', key: 'screen', best: null },
-        { label: 'Kamera', key: 'camera', best: null },
-        { label: 'Batteri', key: 'battery', best: null },
-        { label: 'Vekt', key: 'weight', best: null },
-        { label: 'Tilstand', key: 'cond', best: null },
-      ];
-      // Highlight largest battery (numerical) and lightest weight
+      if (items.length === 0) {
+        grid.innerHTML = '<div style="text-align:center;padding:2rem;color:#888;">Velg minst én modell over for å sammenligne.</div>';
+        grid.style.display = 'block';
+        return;
+      }
+      grid.style.display = 'grid';
       const batteries = items.map(i => parseInt(i.battery)).sort((a,b)=>b-a);
       const weights = items.map(i => parseInt(i.weight)).sort((a,b)=>a-b);
-      const colCount = items.length || 1;
-      const colSize = colCount === 1 ? '1fr' : (colCount === 2 ? 'repeat(2, minmax(0,1fr))' : 'repeat(3, minmax(0,1fr))');
-      grid.style.gridTemplateColumns = `180px ${colSize}`;
+      const colTpl = items.length === 1 ? '1fr' : (items.length === 2 ? 'repeat(2, minmax(0,1fr))' : 'repeat(3, minmax(0,1fr))');
+      grid.style.gridTemplateColumns = '180px ' + colTpl;
+      const labelCell = 'padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;';
+      const valCell   = 'padding:0.95rem 1rem;border-bottom:1px solid #ececec;color:#121212;';
+      const bestCell  = valCell + 'color:' + ACCENT + ';font-weight:700;';
+      const priceCell = valCell + 'font-weight:700;font-size:1.05rem;';
+      const rows = [
+        ['Modell', 'name'],
+        ['Pris (fra)', 'price'],
+        ['Skjerm', 'screen'],
+        ['Kamera', 'camera'],
+        ['Batteri', 'battery'],
+        ['Vekt', 'weight'],
+        ['Tilstand', 'cond'],
+      ];
       let html = '';
-      rows.forEach(r => {
-        html += `<div class="compare-cell head">${r.label}</div>`;
+      rows.forEach(([label, key]) => {
+        html += '<div style="' + labelCell + '">' + label + '</div>';
         items.forEach(i => {
-          let cls = 'compare-cell';
-          if (r.key === 'battery' && parseInt(i.battery) === batteries[0] && items.length > 1) cls += ' best';
-          if (r.key === 'weight' && parseInt(i.weight) === weights[0] && items.length > 1) cls += ' best';
-          if (r.key === 'price') cls += ' font-bold';
-          html += `<div class="${cls}">${i[r.key]}</div>`;
+          let s = valCell;
+          if (key === 'battery' && parseInt(i.battery) === batteries[0] && items.length > 1) s = bestCell;
+          if (key === 'weight' && parseInt(i.weight) === weights[0] && items.length > 1) s = bestCell;
+          if (key === 'price') s = priceCell;
+          html += '<div style="' + s + '">' + i[key] + '</div>';
         });
       });
-      // Buy row
-      html += `<div class="compare-cell head">Kjøp</div>`;
+      html += '<div style="' + labelCell + '">Kjøp</div>';
       items.forEach(i => {
-        html += `<div class="compare-cell"><a href="/products/${i.handle}" class="text-accent font-bold hover:underline">Se modell →</a></div>`;
+        html += '<div style="' + valCell + '"><a href="/products/' + i.handle + '" style="color:' + ACCENT + ';font-weight:700;text-decoration:none;">Se modell →</a></div>';
       });
       grid.innerHTML = html;
     }
@@ -626,6 +637,26 @@
   a, button, [role="button"], a[href], .quiz-option, .hotspot, .product-card, .btn-primary { cursor: pointer; }
   .cursor-ring { display: none !important; }
 
+
+  /* v2.2: hide baked-in white background on iPhone product photos */
+  #hero-phone,
+  .product-card img,
+  #conditions img,
+  .quiz-step img,
+  #compare-grid img,
+  #cert-stamp-blend img { mix-blend-mode: multiply; }
+
+  /* v2.2: hover-lift cards stay on top of neighbors */
+  .product-card { position: relative; z-index: 1; transition: transform 280ms cubic-bezier(.2,.8,.2,1), box-shadow 280ms ease, z-index 0s; }
+  .product-card:hover { z-index: 5; transform: translateY(-6px) scale(1.012); }
+
+  /* v2.2: test scan progress fill — grows bottom-to-top as tests pass */
+  .phone-scan-fill { position:absolute; left:0; right:0; bottom:0; height:0%; pointer-events:none; transition: height 380ms cubic-bezier(.2,.8,.2,1); z-index: 4; border-radius: inherit; }
+  .phone-scan-fill::before { content:''; position:absolute; inset:0; background: linear-gradient(0deg, rgba(27,110,47,0.22) 0%, rgba(27,110,47,0.08) 60%, rgba(27,110,47,0) 100%); }
+  .phone-scan-fill::after { content:''; position:absolute; left:0; right:0; top:-1px; height:1px; background: linear-gradient(90deg, transparent 0%, #1B6E2F 30%, #1B6E2F 70%, transparent 100%); box-shadow: 0 0 14px 4px rgba(27,110,47,0.55); }
+  .phone-checkpoint { position:absolute; width:14px; height:14px; border-radius:50%; background:#1B6E2F; border:2px solid #fff; box-shadow:0 4px 12px rgba(27,110,47,0.4); opacity:0; transform: scale(0.5); transition: opacity 240ms ease, transform 240ms cubic-bezier(.2,.8,.2,1); z-index: 6; pointer-events:none; }
+  .phone-checkpoint.on { opacity:1; transform: scale(1); }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -733,19 +764,8 @@
       </div>
     </div>
   </div>
+  <!-- v2.2: press strip removed (was not factually accurate) -->
 
-  <!-- Brand strip -->
-  <div class="max-w-[1280px] mx-auto px-5 md:px-8 mt-20 md:mt-24">
-    <div class="hairline pt-8 flex flex-wrap items-center justify-between gap-6 text-[12px] uppercase tracking-[0.18em] text-ink/35 font-semibold">
-      <span>Omtalt i</span>
-      <span>VG</span>
-      <span>Dagbladet</span>
-      <span>Tek.no</span>
-      <span>Dinside</span>
-      <span>NRK</span>
-      <span>E24</span>
-    </div>
-  </div>
 </section>
 
 <!-- ─────────── USP ROW ─────────── -->
@@ -846,6 +866,23 @@
             <!-- Certified stamp -->
             <div id="cert-stamp" class="stamp">
               <div class="ring"></div>
+            <!-- v2.2: progressive scan fill + zone checkpoints -->
+            <div class="phone-scan-fill" id="phone-scan-fill"></div>
+            <div class="phone-checkpoint" id="cp-battery" style="left:78%; top:88%;"></div>
+            <div class="phone-checkpoint" id="cp-screen" style="left:50%; top:50%;"></div>
+            <div class="phone-checkpoint" id="cp-front-cam" style="left:50%; top:8%;"></div>
+            <div class="phone-checkpoint" id="cp-back-cam" style="left:20%; top:18%;"></div>
+            <div class="phone-checkpoint" id="cp-faceid" style="left:38%; top:8%;"></div>
+            <div class="phone-checkpoint" id="cp-speaker" style="left:50%; top:92%;"></div>
+            <div class="phone-checkpoint" id="cp-mic" style="left:62%; top:92%;"></div>
+            <div class="phone-checkpoint" id="cp-buttons" style="left:96%; top:30%;"></div>
+            <div class="phone-checkpoint" id="cp-port" style="left:45%; top:96%;"></div>
+            <div class="phone-checkpoint" id="cp-wifi" style="left:30%; top:65%;"></div>
+            <div class="phone-checkpoint" id="cp-bluetooth" style="left:60%; top:60%;"></div>
+            <div class="phone-checkpoint" id="cp-gps" style="left:40%; top:75%;"></div>
+            <div class="phone-checkpoint" id="cp-vibration" style="left:70%; top:45%;"></div>
+            <div class="phone-checkpoint" id="cp-touch" style="left:25%; top:35%;"></div>
+
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
               <div class="text-[12px] font-bold uppercase tracking-[0.18em] mt-2">Sertifisert</div>
               <div class="text-[10px] font-medium mt-1 text-green-700/80">14/14 bestått</div>
@@ -1573,6 +1610,15 @@
         // Stamp
         if (passed >= total) stamp.classList.add('show');
         else stamp.classList.remove('show');
+
+        // v2.2: scan fill + checkpoints
+        const fill = document.getElementById('phone-scan-fill');
+        if (fill) fill.style.height = (passed / total * 100) + '%';
+        const cpIds = ['cp-battery','cp-screen','cp-front-cam','cp-back-cam','cp-faceid','cp-speaker','cp-mic','cp-buttons','cp-port','cp-wifi','cp-bluetooth','cp-gps','cp-vibration','cp-touch'];
+        cpIds.forEach((id, idx) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('on', idx < passed);
+        });
 
         // Scan beam — animate y-position with progress within section
         const beamTop = Math.min(100, p * 110);

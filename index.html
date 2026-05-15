@@ -412,10 +412,10 @@
       if (shimmer) shimmer.classList.toggle('glow', passed >= total);
       if (glow) glow.classList.toggle('on', passed >= total);
       if (testingPhoneImg) {
-        const sat = 0.35 + (passed / total) * 1.1;
-        const bright = 0.88 + (passed / total) * 0.22;
-        const con = 0.95 + (passed / total) * 0.15;
-        const rot = -3 + (passed / total) * 6;
+        const sat = 0.85 + (passed / total) * 0.45;
+        const bright = 0.98 + (passed / total) * 0.07;
+        const con = 1.0 + (passed / total) * 0.08;
+        const rot = -1.5 + (passed / total) * 3;
         testingPhoneImg.style.setProperty('--polish-sat', sat.toFixed(2));
         testingPhoneImg.style.setProperty('--polish-bright', bright.toFixed(2));
         testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
@@ -615,8 +615,7 @@
   .hairline { border-top: 1px solid rgba(18,18,18,0.08); }
 
   /* Sticky-stage rounded mesh */
-  .stage-mesh { background: transparent !important; --legacy-stage-mesh: 0; }
-  .stage-mesh-DISABLED {
+  .stage-mesh {
     background:
       radial-gradient(60% 60% at 50% 40%, rgba(255,107,53,0.10), transparent 60%),
       radial-gradient(60% 60% at 30% 80%, rgba(26,37,64,0.05), transparent 60%),
@@ -869,7 +868,7 @@
   /* v2.9: stronger polish + confetti + completion glow */
   #testing img {
     transition: filter 700ms cubic-bezier(.2,.8,.2,1), transform 900ms cubic-bezier(.2,.8,.2,1) !important;
-    filter: saturate(var(--polish-sat, 0.35)) brightness(var(--polish-bright, 0.88)) contrast(var(--polish-con, 0.95)) !important;
+    filter: saturate(var(--polish-sat, 0.85)) brightness(var(--polish-bright, 0.98)) contrast(var(--polish-con, 1.0)) !important;
   }
   /* Pulse at each test pass */
   @keyframes testPulse {
@@ -906,8 +905,8 @@
 
   /* v2.11: mask testing phone the same way as hero — proven to kill white-bg cleanly */
   #testing img {
-    -webkit-mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
-            mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
+    -webkit-mask-image: radial-gradient(ellipse 92% 95% at 50% 50%, #000 75%, transparent 100%) !important;
+            mask-image: radial-gradient(ellipse 92% 95% at 50% 50%, #000 75%, transparent 100%) !important;
     mix-blend-mode: multiply !important;
   }
 
@@ -1970,9 +1969,9 @@
         // Phone polish CSS variables
         const testingPhoneImg = document.querySelector('#testing img');
         if (testingPhoneImg) {
-          const sat = 0.35 + (passed / total) * 1.1;
-          const bright = 0.88 + (passed / total) * 0.22;
-          const con = 0.95 + (passed / total) * 0.15;
+          const sat = 0.85 + (passed / total) * 0.45;
+          const bright = 0.98 + (passed / total) * 0.07;
+          const con = 1.0 + (passed / total) * 0.08;
           testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
           const rot = -3 + (passed / total) * 6;
           testingPhoneImg.style.setProperty('--polish-sat', sat.toFixed(2));

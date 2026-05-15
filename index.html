@@ -745,6 +745,13 @@
   .phone-cp { opacity: 0.18; transform: translate(-50%,-50%) scale(0.85); }
   .phone-cp.on { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; }
 
+
+  /* v2.6: checkpoints visible by default (gray ring) — turn green when test passes */
+  .phone-cp { opacity: 0.55 !important; transform: translate(-50%,-50%) scale(0.9) !important; background:#FFFFFF !important; border:3px solid #BBB !important; }
+  .phone-cp::after { background: #DDD !important; box-shadow: inset 0 0 0 2px #fff !important; }
+  .phone-cp.on { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; border-color: #1B6E2F !important; }
+  .phone-cp.on::after { background: #1B6E2F !important; }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -983,33 +990,35 @@
             <!-- Certified stamp -->
             <div id="cert-stamp" class="stamp">
               <div class="ring"></div>
-            <!-- v2.4: zone checkpoints (positioned over phone image) -->
-            <div class="phone-fx" aria-hidden="true">
-              <div class="phone-cp" id="cp-battery" data-label="Batteri" style="left:78%; top:88%;"></div>
-              <div class="phone-cp" id="cp-screen" data-label="Skjerm" style="left:50%; top:50%;"></div>
-              <div class="phone-cp" id="cp-front-cam" data-label="Front-kamera" style="left:55%; top:9%;"></div>
-              <div class="phone-cp" id="cp-back-cam" data-label="Bak-kamera" style="left:21%; top:17%;"></div>
-              <div class="phone-cp" id="cp-faceid" data-label="Face ID" style="left:45%; top:9%;"></div>
-              <div class="phone-cp" id="cp-speaker" data-label="Høyttalere" style="left:50%; top:5%;"></div>
-              <div class="phone-cp" id="cp-mic" data-label="Mikrofon" style="left:50%; top:96%;"></div>
-              <div class="phone-cp" id="cp-buttons" data-label="Knapper" style="left:96%; top:28%;"></div>
-              <div class="phone-cp" id="cp-port" data-label="Lade-port" style="left:50%; top:99%;"></div>
-              <div class="phone-cp" id="cp-wifi" data-label="WiFi" style="left:30%; top:62%;"></div>
-              <div class="phone-cp" id="cp-bluetooth" data-label="Bluetooth" style="left:65%; top:62%;"></div>
-              <div class="phone-cp" id="cp-gps" data-label="GPS" style="left:35%; top:78%;"></div>
-              <div class="phone-cp" id="cp-vibration" data-label="Vibrasjon" style="left:65%; top:78%;"></div>
-              <div class="phone-cp" id="cp-touch" data-label="Touch-respons" style="left:50%; top:38%;"></div>
-              <div class="phone-fill" id="phone-fill"></div>
-              <div class="phone-count">
-                <span id="phone-count-num">0</span><span class="muted">/14</span>
-              </div>
-            </div>
 
 
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
               <div class="text-[12px] font-bold uppercase tracking-[0.18em] mt-2">Sertifisert</div>
               <div class="text-[10px] font-medium mt-1 text-green-700/80">14/14 bestått</div>
             </div>
+
+            <!-- v2.6: zone checkpoints (sibling of cert-stamp, inside aspect-[4/5] card) -->
+            <div class="phone-fx" aria-hidden="true">
+              <div class="phone-cp" id="cp-battery" data-label="Batteri" style="left:60%; top:88%;"></div>
+              <div class="phone-cp" id="cp-screen" data-label="Skjerm" style="left:55%; top:55%;"></div>
+              <div class="phone-cp" id="cp-front-cam" data-label="Front-kamera" style="left:55%; top:18%;"></div>
+              <div class="phone-cp" id="cp-back-cam" data-label="Bak-kamera" style="left:35%; top:25%;"></div>
+              <div class="phone-cp" id="cp-faceid" data-label="Face ID" style="left:53%; top:13%;"></div>
+              <div class="phone-cp" id="cp-speaker" data-label="Høyttalere" style="left:50%; top:10%;"></div>
+              <div class="phone-cp" id="cp-mic" data-label="Mikrofon" style="left:60%; top:93%;"></div>
+              <div class="phone-cp" id="cp-buttons" data-label="Knapper" style="left:70%; top:40%;"></div>
+              <div class="phone-cp" id="cp-port" data-label="Lade-port" style="left:55%; top:96%;"></div>
+              <div class="phone-cp" id="cp-wifi" data-label="WiFi" style="left:45%; top:65%;"></div>
+              <div class="phone-cp" id="cp-bluetooth" data-label="Bluetooth" style="left:60%; top:65%;"></div>
+              <div class="phone-cp" id="cp-gps" data-label="GPS" style="left:48%; top:78%;"></div>
+              <div class="phone-cp" id="cp-vibration" data-label="Vibrasjon" style="left:62%; top:78%;"></div>
+              <div class="phone-cp" id="cp-touch" data-label="Touch-respons" style="left:42%; top:45%;"></div>
+              <div class="phone-fill" id="phone-fill"></div>
+              <div class="phone-count">
+                <span id="phone-count-num">0</span><span class="muted">/14</span>
+              </div>
+            </div>
+
           </div>
 
           <div class="mt-5 text-[13px] text-ink/50 text-center md:text-left">

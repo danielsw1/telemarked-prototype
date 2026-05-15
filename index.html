@@ -367,16 +367,17 @@
 
 
   // ───────── v2.10: ?testpct=N URL param forces test progress (for verification) ─────────
-  // v2.17: ?testpct=N forces the report into a specific pass-count state for verification.
+  // v2.17b: ?testpct=N — wait for report-rows to exist (rAF-poll), then apply state once.
   (function(){
     const params = new URLSearchParams(window.location.search);
     const pct = params.get('testpct');
     if (pct === null) return;
     const targetPassed = Math.min(14, Math.max(0, parseInt(pct, 10)));
-    function applyForced() {
+    const total = 14;
+    const passed = targetPassed;
+    function tryApply() {
       const rows = document.querySelectorAll('.report-row');
-      const total = 14;
-      const passed = targetPassed;
+      if (rows.length < total) { requestAnimationFrame(tryApply); return; }
       rows.forEach((r, i) => r.classList.toggle('passed', i < passed));
       const pc = document.getElementById('report-pass-count');
       if (pc) pc.textContent = passed;
@@ -391,9 +392,11 @@
         sig.style.transform = complete ? 'rotate(-2deg) translateX(0)' : 'rotate(-2deg) translateX(-10px)';
       }
     }
-    setTimeout(applyForced, 500);
-    setTimeout(applyForced, 1400);
-    setTimeout(applyForced, 2400);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', tryApply, { once: true });
+    } else {
+      requestAnimationFrame(tryApply);
+    }
   })();
 
 </script>

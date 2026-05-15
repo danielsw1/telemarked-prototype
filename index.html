@@ -381,12 +381,8 @@
       const progressBar = document.getElementById('progress-bar');
       const progressCount = document.getElementById('progress-count');
       const stamp = document.getElementById('cert-stamp');
-      const trace = document.getElementById('trace-path');
-      const traceChecks = document.getElementById('trace-checks');
-      const fillEl = document.getElementById('phone-fill');
       const countNum = document.getElementById('phone-count-num');
       const labelEl = document.getElementById('phone-current-test');
-      const shimmer = document.getElementById('phone-shimmer');
       const glow = document.getElementById('completion-glow');
       const testingPhoneImg = document.querySelector('#testing img');
       const tests = ['Batteri','Skjerm','Front-kamera','Bak-kamera','Face ID','Høyttalere','Mikrofon','Knapper','Lade-port','WiFi','Bluetooth','GPS','Vibrasjon','Touch-respons'];
@@ -404,7 +400,6 @@
       if (progressBar) progressBar.style.width = pctNum + '%';
       if (progressCount) progressCount.textContent = passed;
       if (stamp) stamp.classList.toggle('show', passed >= total);
-      if (trace) trace.style.strokeDashoffset = String(1480 * (1 - passed / total));
       if (countNum) countNum.textContent = passed;
       if (labelEl && passed > 0) { labelEl.textContent = tests[passed - 1]; labelEl.classList.add('show'); }
       if (glow) glow.classList.toggle('on', passed >= total);
@@ -725,8 +720,8 @@
   .cursor-ring { display: none !important; }
 
 
-  /* v2.2: hide baked-in white background on iPhone product photos */
-  #hero-phone,
+  /* v2.16: only apply mix-blend-mode where photos still have white bg.
+     Hero+testing use transparent WebP now — they're excluded. */
   .product-card img,
   #conditions img,
   .quiz-step img,
@@ -757,60 +752,18 @@
   .product-card .pill { right: 12px !important; left: auto !important; top: 12px !important; }
 
 
-  /* v2.5: kill the Tailwind drop-shadow filter that breaks mix-blend-mode */
-  #hero-phone {
-    filter: none !important;
-    mix-blend-mode: multiply;
-  }
-  /* Add shadow on parent instead, since filter on img killed blending */
-  #hero-phone {
-    /* No box-shadow on transparent regions, but a subtle one underneath the visible phone */
-  }
-  /* Hero right column gets a soft shadow on its bg-blob instead of on the image */
+  /* v2.5/v2.8 hero mask + mix-blend hacks removed — transparent WebP makes them unnecessary */
+
   .hero-phone-wrap {
     display: inline-block;
     position: relative;
     z-index: 10;
-    background: transparent;
   }
-  .hero-phone-wrap::after {
-    /* Drop a ground-shadow below the phone, not on the white photo edges */
-    content: '';
-    position: absolute;
-    left: 12%;
-    right: 12%;
-    bottom: -10px;
-    height: 22px;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0.22) 0%, transparent 70%);
-    filter: blur(8px);
-    z-index: -1;
-  }
+  /* ───── v2.16: TRANSPARENT WEBP — no more mask hacks ───── */
 
-
-  /* v2.5/v2.6 .phone-cp rules removed — checkpoint approach abandoned in v2.8 */
-
-
-  /* v2.8: stronger hero photo fix — mask-image fades the photo's white edges */
+  /* Hero phone: Apple's transparent product image. Just a soft ground shadow. */
   #hero-phone {
-    -webkit-mask-image: radial-gradient(ellipse 70% 92% at center, #000 55%, transparent 100%);
-            mask-image: radial-gradient(ellipse 70% 92% at center, #000 55%, transparent 100%);
-    filter: none !important;
-    mix-blend-mode: normal !important;
-  }
-  /* ───── v2.15: TESTING SECTION — consolidated, clean cascade ───── */
-
-  /* Hero phone — mask + multiply for clean edges */
-  #hero-phone {
-    -webkit-mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
-            mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
-    -webkit-mask-size: 100% 100% !important;
-            mask-size: 100% 100% !important;
-    filter: none !important;
-    mix-blend-mode: multiply !important;
-    background: transparent !important;
-  }
-  @supports not (mask-image: radial-gradient(black, transparent)) {
-    #hero-phone { clip-path: ellipse(48% 49% at 50% 50%) !important; }
+    filter: drop-shadow(0 32px 48px rgba(18,18,18,0.22));
   }
 
   /* Testing-section stage: transparent so phone sits on bg-paper directly */
@@ -818,21 +771,20 @@
     background: transparent !important;
   }
 
-  /* Testing-section phone — multiply against bg-paper (#FAFAF8) kills the white photo edge naturally */
+  /* Testing-section phone — transparent webp, no blend hacks. Subtle polish via filter. */
   #testing img {
     position: relative;
     z-index: 5;
-    mix-blend-mode: multiply;
     transform: rotate(var(--polish-rot, 0deg));
-    filter: saturate(var(--polish-sat, 0.9)) brightness(var(--polish-bright, 1)) contrast(var(--polish-con, 1));
+    filter:
+      saturate(var(--polish-sat, 0.9))
+      brightness(var(--polish-bright, 1))
+      contrast(var(--polish-con, 1))
+      drop-shadow(0 24px 36px rgba(18,18,18,0.18));
     transition:
       filter 600ms cubic-bezier(.2,.8,.2,1),
       transform 800ms cubic-bezier(.2,.8,.2,1);
   }
-
-  /* Trace-line SVG: above phone, cleaner stroke, no heavy blur */
-  #testing #trace-line { z-index: 15; }
-  #testing #trace-path { transition: stroke-dashoffset 380ms cubic-bezier(.2,.8,.2,1); }
 
   /* Cinema overlay container */
   .phone-cinema { position:absolute; inset:0; pointer-events:none; z-index:5; }
@@ -955,9 +907,9 @@
         <div class="w-[300px] md:w-[380px] aspect-square rounded-full bg-gradient-to-br from-accent-soft to-transparent"></div>
       </div>
       <span class="hero-phone-wrap"><img id="hero-phone"
-           src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-alpine-green_out.jpg"
+           src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iPhone_0002s_0001_iphone-13-pro-finish-select-202207-6-7inch-alpinegreen_AV2_2x_66739ae3-c9b7-456c-9581-4886f3006e22.webp"
            alt="iPhone 13 Pro alpine green"
-           class="relative z-10 max-h-[400px] md:max-h-[600px] w-auto float-idle drop-shadow-[0_40px_60px_rgba(18,18,18,0.18)]"/></span>
+           class="relative z-10 max-h-[400px] md:max-h-[600px] w-auto float-idle"/></span>
 
       <!-- Floating price tag -->
       <div class="hidden md:block absolute top-[10%] right-[-10px] bg-white rounded-2xl shadow-card px-4 py-3 z-20 reveal">
@@ -1084,9 +1036,9 @@
         <div class="md:sticky md:top-[120px]">
           <div class="relative aspect-[4/5] rounded-[32px] stage-mesh overflow-hidden flex items-center justify-center">
             <div class="absolute inset-0 grain"></div>
-            <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-alpine-green_out.jpg"
+            <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iPhone_0002s_0001_iphone-13-pro-finish-select-202207-6-7inch-alpinegreen_AV2_2x_66739ae3-c9b7-456c-9581-4886f3006e22.webp"
                  alt="iPhone i test"
-                 class="relative z-10 max-h-[85%] w-auto drop-shadow-[0_30px_50px_rgba(18,18,18,0.18)]"/>
+                 class="relative z-10 max-h-[85%] w-auto"/>
 
             <!-- Scanning beam -->
             <div id="scan-beam" style="display:none !important;" class="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 z-20" style="top:0;box-shadow:0 0 24px rgba(255,107,53,.6);"></div>
@@ -1104,26 +1056,7 @@
             </svg>
 
 
-            <!-- v2.15: scroll-drawn trace line — clean, no blur, tighter path around phone -->
-            <svg id="trace-line" class="absolute inset-0 pointer-events-none" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="trace-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FF6B35"/>
-                  <stop offset="55%" stop-color="#FF8A50"/>
-                  <stop offset="100%" stop-color="#1B6E2F"/>
-                </linearGradient>
-              </defs>
-              <!-- Soft path that loops around the phone region; total length ~1480 -->
-              <path id="trace-path"
-                    d="M 92 70 C 150 36, 250 32, 312 76 C 372 122, 372 220, 348 308 C 322 396, 232 442, 152 416 C 78 392, 36 308, 50 220 C 62 142, 88 92, 92 70"
-                    fill="none"
-                    stroke="url(#trace-grad)"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-dasharray="1480"
-                    stroke-dashoffset="1480"/>
-            </svg>
+            <!-- v2.16: trace-line dropped entirely — was decorative noise, didn't interact with phone -->
 
             <!-- Certified stamp -->
             <div id="cert-stamp" class="stamp">
@@ -1914,9 +1847,6 @@
           testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
           testingPhoneImg.style.setProperty('--polish-rot', rot.toFixed(1) + 'deg');
         }
-        // Scroll-drawn trace line (path total length 1480)
-        const trace = document.getElementById('trace-path');
-        if (trace) trace.style.strokeDashoffset = String(1480 * (1 - passed / total));
         // Current test label
         const labelEl = document.getElementById('phone-current-test');
         if (labelEl) {

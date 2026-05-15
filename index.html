@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Telemarked — Brukte iPhones. Som nye. Halv pris.</title>
+<meta name="description" content="Refurbished iPhones med 14-punkts test, 1 års garanti og 14 dagers åpent kjøp. Spar opp til 50% mot ny." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+<!-- Tailwind play CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#121212',
+          navy: '#1A2540',
+          accent: '#FF6B35',
+          'accent-dark': '#E85A26',
+          'accent-soft': '#FFF1EB',
+          paper: '#FAFAF8',
+          line: '#EAEAEA',
+        },
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        },
+        boxShadow: {
+          card: '0 2px 8px -2px rgba(18,18,18,0.04), 0 12px 32px -8px rgba(18,18,18,0.08)',
+          'card-hover': '0 4px 14px -4px rgba(18,18,18,0.08), 0 24px 48px -12px rgba(18,18,18,0.16)',
+          'glow-accent': '0 18px 48px -16px rgba(255,107,53,0.55)',
+        },
+        letterSpacing: {
+          'tightest-2': '-0.045em',
+        }
+      }
+    }
+  }
+</script>
+
+<!-- GSAP + ScrollTrigger -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<!-- Lenis smooth scroll -->
+<script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+
+<style>
+  :root { --accent: #FF6B35; --ink: #121212; --navy: #1A2540; }
+  html, body { background: #FAFAF8; color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  body { overflow-x: hidden; }
+
+  /* Wordmark — italic "Tele" + regular "marked" */
+  .wordmark { font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: -0.035em; }
+  .wordmark .tele { font-style: italic; font-weight: 800; }
+  .wordmark .marked { font-style: normal; font-weight: 600; }
+  .wordmark .dot { color: var(--accent); }
+
+  /* Display headings */
+  .h-display {
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+  }
+  .h-display .it { font-style: italic; font-weight: 800; color: var(--accent); }
+
+  /* Header glass */
+  .header-glass {
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    background: rgba(250, 250, 248, 0.72);
+    border-bottom: 1px solid rgba(18,18,18,0.06);
+  }
+  .header-top {
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    backdrop-filter: none;
+  }
+
+  /* Subtle paper grain */
+  .grain::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(18,18,18,0.04) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+
+  /* Hero halo */
+  .hero-halo {
+    position: absolute;
+    width: 720px; height: 720px;
+    border-radius: 9999px;
+    background: radial-gradient(closest-side, rgba(255,107,53,0.18), rgba(255,107,53,0.05) 55%, transparent 70%);
+    filter: blur(10px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Float idle */
+  @keyframes float-idle {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-14px) rotate(-2deg); }
+  }
+  .float-idle { animation: float-idle 6s ease-in-out infinite; will-change: transform; }
+
+  /* Test row states */
+  .test-row {
+    transition: color .35s ease, opacity .35s ease;
+    color: rgba(18,18,18,0.45);
+  }
+  .test-row .dot {
+    width: 22px; height: 22px;
+    border-radius: 9999px;
+    background: #E5E5E0;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background-color .4s ease, transform .4s ease;
+  }
+  .test-row .dot svg { opacity: 0; transition: opacity .3s ease .1s; transform: scale(.6); transition: opacity .3s ease, transform .3s cubic-bezier(.5,1.6,.4,1); }
+  .test-row.passed { color: #121212; }
+  .test-row.passed .dot { background: #16A34A; transform: scale(1.08); }
+  .test-row.passed .dot svg { opacity: 1; transform: scale(1); }
+  .test-row .label { font-weight: 500; }
+  .test-row.passed .label { font-weight: 600; }
+  .test-row .status { font-variant-numeric: tabular-nums; font-size: 12px; color: rgba(18,18,18,0.4); font-weight: 500; letter-spacing: 0.02em; }
+  .test-row.passed .status { color: #16A34A; }
+
+  /* Certified stamp */
+  .stamp {
+    position: absolute;
+    inset: auto 0 0 0;
+    margin: 0 auto;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg) scale(.6);
+    width: 240px; height: 240px;
+    border-radius: 9999px;
+    background: rgba(22,163,74,0.06);
+    border: 2px dashed rgba(22,163,74,0.55);
+    color: #16A34A;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity .5s ease, transform .6s cubic-bezier(.4,1.6,.6,1);
+    pointer-events: none;
+  }
+  .stamp.show { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  .stamp .ring { position: absolute; inset: 14px; border-radius: 9999px; border: 1px solid rgba(22,163,74,0.45); }
+
+  /* Progress ring */
+  .progress-ring circle { transition: stroke-dashoffset .5s ease; }
+
+  /* Product card */
+  .product-card { transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease; }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 4px 14px -4px rgba(18,18,18,0.08), 0 24px 48px -12px rgba(18,18,18,0.16); }
+  .product-card img { transition: transform .55s cubic-bezier(.2,.8,.2,1); }
+  .product-card:hover img { transform: scale(1.04); }
+
+  /* Pill */
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 4px 10px; border-radius: 9999px; }
+  .pill .swatch { width: 6px; height: 6px; border-radius: 9999px; }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* CTA buttons */
+  .btn-primary {
+    background: var(--accent); color: white; font-weight: 600;
+    padding: 14px 24px; border-radius: 9999px;
+    transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+    box-shadow: 0 10px 24px -10px rgba(255,107,53,0.55);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-primary:hover { background: var(--accent-dark, #E85A26); transform: translateY(-1px); box-shadow: 0 16px 32px -12px rgba(255,107,53,0.65); }
+  .btn-ghost {
+    color: var(--ink); font-weight: 600;
+    padding: 14px 22px; border-radius: 9999px;
+    border: 1px solid rgba(18,18,18,0.14);
+    transition: background-color .25s ease, border-color .25s ease;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: transparent;
+  }
+  .btn-ghost:hover { background: rgba(18,18,18,0.04); border-color: rgba(18,18,18,0.22); }
+
+  /* Marquee underline link */
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: -6px; height: 1.5px; width: 100%;
+    background: var(--accent); transform: scaleX(0); transform-origin: right;
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  /* Hairline divider */
+  .hairline { border-top: 1px solid rgba(18,18,18,0.08); }
+
+  /* Sticky-stage rounded mesh */
+  .stage-mesh {
+    background:
+      radial-gradient(60% 60% at 50% 40%, rgba(255,107,53,0.10), transparent 60%),
+      radial-gradient(60% 60% at 30% 80%, rgba(26,37,64,0.05), transparent 60%),
+      linear-gradient(180deg, rgba(18,18,18,0.02), transparent 30%);
+  }
+
+  /* Testimonial slider */
+  .t-track { display: flex; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
+  .t-slide { min-width: 100%; }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    .float-idle { animation: none !important; }
+    *, *::before, *::after { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+  }
+
+  /* Selection */
+  ::selection { background: rgba(255,107,53,0.25); color: var(--ink); }
+
+  /* Sale badge */
+  .sale-badge {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--ink); color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 6px 10px; border-radius: 9999px;
+  }
+
+  /* Stat number style */
+  .stat-num { font-feature-settings: "tnum" 1, "lnum" 1; letter-spacing: -0.04em; }
+
+  /* Mobile tweaks */
+  @media (max-width: 768px) {
+    .hero-halo { width: 420px; height: 420px; }
+  }
+</style>
+</head>
+<body class="font-sans text-ink antialiased">
+
+<!-- ─────────── HEADER ─────────── -->
+<header id="site-header" class="fixed top-0 inset-x-0 z-50 header-top transition-all duration-300">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8 h-[68px] flex items-center justify-between">
+    <a href="#top" class="wordmark text-[22px] md:text-[24px] text-ink leading-none flex items-baseline">
+      <span class="tele">Tele</span><span class="marked">marked</span><span class="dot">.</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-9 text-[14px] font-medium text-ink/80">
+      <a href="#shop" class="nav-link">Handle</a>
+      <a href="#testing" class="nav-link">Slik tester vi</a>
+      <a href="#conditions" class="nav-link">Tilstand</a>
+      <a href="#reviews" class="nav-link">Anmeldelser</a>
+      <a href="#footer" class="nav-link">Hjelp</a>
+    </nav>
+
+    <div class="flex items-center gap-2 md:gap-4">
+      <button aria-label="Søk" class="p-2 rounded-full hover:bg-ink/5 transition">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button aria-label="Konto" class="p-2 rounded-full hover:bg-ink/5 transition hidden sm:inline-flex">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      </button>
+      <button aria-label="Handlekurv" class="p-2 rounded-full hover:bg-ink/5 transition relative">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14l-1.5 11a2 2 0 0 1-2 1.7H8.5a2 2 0 0 1-2-1.7L5 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+        <span class="absolute -top-0.5 -right-0.5 bg-accent text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">2</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ─────────── HERO ─────────── -->
+<section id="top" class="relative pt-[120px] md:pt-[140px] pb-20 md:pb-32 overflow-hidden">
+  <div class="hero-halo left-[-200px] top-[80px] md:left-auto md:right-[-120px] md:top-[40px]"></div>
+
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center relative">
+    <!-- Left -->
+    <div class="md:col-span-7 relative z-10">
+      <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-wide uppercase text-accent mb-6 reveal">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+        Sertifisert refurbished
+      </div>
+      <h1 class="h-display text-[44px] sm:text-[56px] md:text-[80px] lg:text-[92px] reveal">
+        Brukte iPhones.<br>
+        Som nye.<br>
+        <span class="it">Halv pris.</span>
+      </h1>
+      <p class="mt-7 md:mt-9 text-[17px] md:text-[19px] text-ink/65 max-w-[480px] leading-relaxed reveal">
+        14-punkts test. 1 års garanti. 14 dagers åpent kjøp.
+        Hver telefon restaureres av sertifiserte teknikere før den selges.
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-3 reveal">
+        <a href="#shop" class="btn-primary">
+          Se alle modeller
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+        </a>
+        <a href="#testing" class="btn-ghost">
+          Slik tester vi
+        </a>
+      </div>
+
+      <!-- Trust row -->
+      <div class="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3 text-[13px] text-ink/55 reveal">
+        <div class="flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+          <span>Fri frakt over 500 kr</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+          <span>4,8 ★ på Trustpilot</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+          <span>Send på 1-2 dager</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="md:col-span-5 relative h-[420px] md:h-[640px] flex items-center justify-center">
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="w-[300px] md:w-[380px] aspect-square rounded-full bg-gradient-to-br from-accent-soft to-transparent"></div>
+      </div>
+      <img id="hero-phone"
+           src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-alpine-green_out.jpg"
+           alt="iPhone 13 Pro alpine green"
+           class="relative z-10 max-h-[400px] md:max-h-[600px] w-auto float-idle drop-shadow-[0_40px_60px_rgba(18,18,18,0.18)]"/>
+
+      <!-- Floating price tag -->
+      <div class="hidden md:block absolute top-[10%] right-[-10px] bg-white rounded-2xl shadow-card px-4 py-3 z-20 reveal">
+        <div class="text-[11px] text-ink/50 font-semibold uppercase tracking-wider">Fra</div>
+        <div class="text-[22px] font-bold leading-none text-ink">5 990 <span class="text-[13px] text-ink/40 font-medium">kr</span></div>
+        <div class="text-[11px] text-accent font-semibold mt-1">Spar 3 000 kr</div>
+      </div>
+
+      <!-- Floating warranty tag -->
+      <div class="hidden md:block absolute bottom-[12%] left-[-20px] bg-ink text-white rounded-2xl px-4 py-3 z-20 reveal">
+        <div class="flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <div class="text-[12px] font-semibold leading-tight">1 års<br>garanti</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Brand strip -->
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8 mt-20 md:mt-24">
+    <div class="hairline pt-8 flex flex-wrap items-center justify-between gap-6 text-[12px] uppercase tracking-[0.18em] text-ink/35 font-semibold">
+      <span>Omtalt i</span>
+      <span>VG</span>
+      <span>Dagbladet</span>
+      <span>Tek.no</span>
+      <span>Dinside</span>
+      <span>NRK</span>
+      <span>E24</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── USP ROW ─────────── -->
+<section class="py-16 md:py-24 bg-white border-y border-line">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
+    <!-- 1 -->
+    <div class="usp reveal">
+      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h13l2 4h3v6h-2"/><path d="M3 7v10h2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M10 17h5"/></svg>
+      </div>
+      <div class="text-[16px] font-semibold mb-1">Gratis frakt</div>
+      <div class="text-[14px] text-ink/55 leading-relaxed">På ordre over 500 kr.<br>Sendt på 1–2 dager.</div>
+    </div>
+    <!-- 2 -->
+    <div class="usp reveal">
+      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>
+      </div>
+      <div class="text-[16px] font-semibold mb-1">14 dagers åpent kjøp</div>
+      <div class="text-[14px] text-ink/55 leading-relaxed">Ikke fornøyd? Send tilbake.<br>Vi refunderer fullt beløp.</div>
+    </div>
+    <!-- 3 -->
+    <div class="usp reveal">
+      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M10 7h4"/><path d="m9.5 12 1.7 1.7L15 10"/></svg>
+      </div>
+      <div class="text-[16px] font-semibold mb-1">14-punkts test</div>
+      <div class="text-[14px] text-ink/55 leading-relaxed">Hver telefon kontrolleres<br>av sertifisert tekniker.</div>
+    </div>
+    <!-- 4 -->
+    <div class="usp reveal">
+      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div class="text-[16px] font-semibold mb-1">1 års garanti</div>
+      <div class="text-[14px] text-ink/55 leading-relaxed">Full garanti på alle<br>komponenter og batteri.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── KILLER: SCROLL-DRIVEN TESTING ─────────── -->
+<section id="testing" class="relative bg-paper py-24 md:py-32">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8">
+    <div class="max-w-[640px] mb-16 md:mb-24 reveal">
+      <div class="text-[12px] font-semibold uppercase tracking-[0.18em] text-accent mb-4">Slik tester vi</div>
+      <h2 class="h-display text-[40px] md:text-[64px]">
+        14 sjekkpunkter.<br>
+        <span class="it">Hver eneste gang.</span>
+      </h2>
+      <p class="mt-6 text-[16px] md:text-[18px] text-ink/60 leading-relaxed">
+        Ingen telefon forlater lageret før alle 14 punkter er bestått av en sertifisert tekniker.
+        Scroll for å se hva vi tester.
+      </p>
+    </div>
+
+    <div id="testing-stage" class="relative grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+      <!-- LEFT: Test list (animated) -->
+      <div class="md:col-span-7 order-2 md:order-1">
+        <ol id="test-list" class="space-y-3">
+          <!-- rows injected by JS -->
+        </ol>
+
+        <!-- Progress -->
+        <div class="mt-10 flex items-center gap-4">
+          <div class="flex-1 h-1.5 rounded-full bg-ink/8 overflow-hidden">
+            <div id="progress-bar" class="h-full bg-accent rounded-full transition-[width] duration-500 ease-out" style="width:0%"></div>
+          </div>
+          <div class="text-[13px] font-semibold tabular-nums text-ink/70">
+            <span id="progress-count">0</span> / 14
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Sticky iPhone -->
+      <div class="md:col-span-5 order-1 md:order-2">
+        <div class="md:sticky md:top-[120px]">
+          <div class="relative aspect-[4/5] rounded-[32px] stage-mesh overflow-hidden flex items-center justify-center">
+            <div class="absolute inset-0 grain"></div>
+            <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-graphite_out.jpg"
+                 alt="iPhone i test"
+                 class="relative z-10 max-h-[85%] w-auto drop-shadow-[0_30px_50px_rgba(18,18,18,0.18)]"/>
+
+            <!-- Scanning beam -->
+            <div id="scan-beam" class="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 z-20" style="top:0;box-shadow:0 0 24px rgba(255,107,53,.6);"></div>
+
+            <!-- Progress ring -->
+            <svg class="progress-ring absolute top-5 left-5 z-20" width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" stroke="rgba(18,18,18,0.08)" stroke-width="3" fill="none"/>
+              <circle id="ring-circle" cx="28" cy="28" r="24" stroke="#FF6B35" stroke-width="3" fill="none"
+                stroke-linecap="round"
+                transform="rotate(-90 28 28)"
+                stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+              <text x="50%" y="54%" text-anchor="middle" font-size="13" font-weight="700" fill="#121212" font-family="Inter">
+                <tspan id="ring-text">0%</tspan>
+              </text>
+            </svg>
+
+            <!-- Certified stamp -->
+            <div id="cert-stamp" class="stamp">
+              <div class="ring"></div>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+              <div class="text-[12px] font-bold uppercase tracking-[0.18em] mt-2">Sertifisert</div>
+              <div class="text-[10px] font-medium mt-1 text-green-700/80">14/14 bestått</div>
+            </div>
+          </div>
+
+          <div class="mt-5 text-[13px] text-ink/50 text-center md:text-left">
+            Hver test loggføres og er knyttet til serienummeret på din telefon.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── STATS BAND ─────────── -->
+<section class="bg-ink text-white py-20 md:py-28 relative overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 20% 20%, #FF6B35, transparent 40%), radial-gradient(circle at 80% 60%, #FF6B35, transparent 40%);"></div>
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8 relative">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+      <div class="reveal">
+        <div class="stat-num text-[48px] md:text-[72px] font-bold leading-none">
+          <span class="stat-counter" data-target="1247" data-prefix="" data-suffix="">0</span>
+        </div>
+        <div class="text-[13px] text-white/55 mt-2 font-medium">telefoner restaurert</div>
+      </div>
+      <div class="reveal">
+        <div class="stat-num text-[48px] md:text-[72px] font-bold leading-none text-accent">
+          <span class="stat-counter" data-target="98" data-suffix="%">0</span>
+        </div>
+        <div class="text-[13px] text-white/55 mt-2 font-medium">kundetilfredshet</div>
+      </div>
+      <div class="reveal">
+        <div class="stat-num text-[48px] md:text-[72px] font-bold leading-none">
+          <span class="stat-counter" data-target="1" data-suffix=" år">0</span>
+        </div>
+        <div class="text-[13px] text-white/55 mt-2 font-medium">full garanti</div>
+      </div>
+      <div class="reveal">
+        <div class="stat-num text-[48px] md:text-[72px] font-bold leading-none text-accent">
+          <span class="stat-counter" data-target="100" data-suffix="%">0</span>
+        </div>
+        <div class="text-[13px] text-white/55 mt-2 font-medium">testet før salg</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PRODUCT GRID ─────────── -->
+<section id="shop" class="py-24 md:py-32 bg-paper">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-14 md:mb-20">
+      <div class="reveal max-w-[640px]">
+        <div class="text-[12px] font-semibold uppercase tracking-[0.18em] text-accent mb-4">Mest populære</div>
+        <h2 class="h-display text-[40px] md:text-[64px]">
+          Telefoner <span class="it">i lager</span>
+        </h2>
+      </div>
+      <a href="#" class="hidden md:inline-flex items-center gap-2 text-[14px] font-semibold text-ink/70 hover:text-ink transition">
+        Se alle <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+      <!-- Card 1 -->
+      <a href="#" class="product-card reveal block bg-white rounded-3xl p-6 md:p-7 shadow-card">
+        <div class="relative aspect-square bg-paper rounded-2xl overflow-hidden mb-6 flex items-center justify-center">
+          <span class="sale-badge">Spar 30%</span>
+          <span class="pill absolute top-14 right-3 bg-green-100 text-green-800"><span class="swatch bg-green-600"></span>Nesten ny</span>
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-gold_out.jpg" alt="iPhone 13 Pro Max gull" class="max-h-[82%] w-auto"/>
+        </div>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.16em] text-ink/45 font-semibold mb-2">256 GB · Gull</div>
+            <div class="text-[19px] font-semibold leading-tight">iPhone 13 Pro Max</div>
+          </div>
+          <button aria-label="Lagre" class="text-ink/40 hover:text-accent transition">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z"/></svg>
+          </button>
+        </div>
+        <div class="mt-5 flex items-baseline gap-3">
+          <span class="text-[22px] font-bold leading-none">6 290 kr</span>
+          <span class="text-[14px] text-ink/35 line-through">8 990</span>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a href="#" class="product-card reveal block bg-white rounded-3xl p-6 md:p-7 shadow-card">
+        <div class="relative aspect-square bg-paper rounded-2xl overflow-hidden mb-6 flex items-center justify-center">
+          <span class="sale-badge">Spar 45%</span>
+          <span class="pill absolute top-14 right-3 bg-blue-100 text-blue-800"><span class="swatch bg-blue-600"></span>Pent brukt</span>
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-green_out.jpg" alt="iPhone 13 grønn" class="max-h-[82%] w-auto"/>
+        </div>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.16em] text-ink/45 font-semibold mb-2">128 GB · Grønn</div>
+            <div class="text-[19px] font-semibold leading-tight">iPhone 13</div>
+          </div>
+          <button aria-label="Lagre" class="text-ink/40 hover:text-accent transition">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z"/></svg>
+          </button>
+        </div>
+        <div class="mt-5 flex items-baseline gap-3">
+          <span class="text-[22px] font-bold leading-none">4 390 kr</span>
+          <span class="text-[14px] text-ink/35 line-through">7 990</span>
+        </div>
+      </a>
+
+      <!-- Card 3 -->
+      <a href="#" class="product-card reveal block bg-white rounded-3xl p-6 md:p-7 shadow-card">
+        <div class="relative aspect-square bg-paper rounded-2xl overflow-hidden mb-6 flex items-center justify-center">
+          <span class="sale-badge">Spar 36%</span>
+          <span class="pill absolute top-14 right-3 bg-green-100 text-green-800"><span class="swatch bg-green-600"></span>Nesten ny</span>
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-14-purple_out.jpg" alt="iPhone 14 lilla" class="max-h-[82%] w-auto"/>
+        </div>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.16em] text-ink/45 font-semibold mb-2">128 GB · Lilla</div>
+            <div class="text-[19px] font-semibold leading-tight">iPhone 14</div>
+          </div>
+          <button aria-label="Lagre" class="text-ink/40 hover:text-accent transition">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6Z"/></svg>
+          </button>
+        </div>
+        <div class="mt-5 flex items-baseline gap-3">
+          <span class="text-[22px] font-bold leading-none">6 390 kr</span>
+          <span class="text-[14px] text-ink/35 line-through">9 990</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="mt-12 md:hidden">
+      <a href="#" class="btn-ghost w-full justify-center">Se alle telefoner</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── CONDITIONS ─────────── -->
+<section id="conditions" class="py-24 md:py-32 bg-white border-y border-line">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8">
+    <div class="max-w-[640px] mb-16 md:mb-20 reveal">
+      <div class="text-[12px] font-semibold uppercase tracking-[0.18em] text-accent mb-4">Tilstandsgradering</div>
+      <h2 class="h-display text-[40px] md:text-[64px]">
+        Du <span class="it">velger</span> tilstand.
+      </h2>
+      <p class="mt-6 text-[16px] md:text-[18px] text-ink/60 leading-relaxed">
+        Tre nivåer, ærlig beskrevet. Pris reflekterer kosmetisk tilstand — funksjonen er alltid 100%.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+      <!-- Nesten ny -->
+      <div class="reveal bg-paper rounded-3xl p-7 md:p-9 border border-line">
+        <span class="pill bg-green-100 text-green-800 mb-6"><span class="swatch bg-green-600"></span>Nesten ny</span>
+        <div class="aspect-[4/5] rounded-2xl bg-white overflow-hidden flex items-center justify-center mb-7 border border-line">
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-silver_out.jpg" alt="Nesten ny" class="max-h-[80%] w-auto"/>
+        </div>
+        <h3 class="text-[22px] font-semibold mb-3">Som splitter ny</h3>
+        <p class="text-[14px] text-ink/60 leading-relaxed mb-5">
+          Ingen synlige bruksspor i normal armlengdes avstand. Skjerm og bakdel uten riper.
+        </p>
+        <div class="text-[13px] text-green-700 font-semibold">Spar 25–30% mot ny</div>
+      </div>
+
+      <!-- Pent brukt -->
+      <div class="reveal bg-paper rounded-3xl p-7 md:p-9 border border-line">
+        <span class="pill bg-blue-100 text-blue-800 mb-6"><span class="swatch bg-blue-600"></span>Pent brukt</span>
+        <div class="aspect-[4/5] rounded-2xl bg-white overflow-hidden flex items-center justify-center mb-7 border border-line">
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-blue_out.jpg" alt="Pent brukt" class="max-h-[80%] w-auto"/>
+        </div>
+        <h3 class="text-[22px] font-semibold mb-3">Lette bruksspor</h3>
+        <p class="text-[14px] text-ink/60 leading-relaxed mb-5">
+          Mikroriper på bakdel ved nær inspeksjon. Skjerm uten synlige merker. Ramme i god stand.
+        </p>
+        <div class="text-[13px] text-blue-700 font-semibold">Spar 35–45% mot ny</div>
+      </div>
+
+      <!-- Godt brukt -->
+      <div class="reveal bg-paper rounded-3xl p-7 md:p-9 border border-line">
+        <span class="pill bg-yellow-100 text-yellow-800 mb-6"><span class="swatch bg-yellow-500"></span>Godt brukt</span>
+        <div class="aspect-[4/5] rounded-2xl bg-white overflow-hidden flex items-center justify-center mb-7 border border-line">
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pink_out.jpg" alt="Godt brukt" class="max-h-[80%] w-auto"/>
+        </div>
+        <h3 class="text-[22px] font-semibold mb-3">Synlige bruksspor</h3>
+        <p class="text-[14px] text-ink/60 leading-relaxed mb-5">
+          Tydelige riper og småmerker. Funksjonen er fortsatt 100% — perfekt for den prisbevisste.
+        </p>
+        <div class="text-[13px] text-yellow-700 font-semibold">Spar 45–55% mot ny</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TESTIMONIALS ─────────── -->
+<section id="reviews" class="py-24 md:py-32 bg-paper">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+      <div class="md:col-span-4 reveal">
+        <div class="text-[12px] font-semibold uppercase tracking-[0.18em] text-accent mb-4">Anmeldelser</div>
+        <h2 class="h-display text-[40px] md:text-[56px]">4,8 av 5 <span class="it">stjerner.</span></h2>
+        <div class="mt-6 flex items-center gap-1 text-accent">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+        </div>
+        <p class="mt-5 text-[15px] text-ink/55">Basert på 1 247 verifiserte kjøp.</p>
+      </div>
+
+      <div class="md:col-span-8 reveal">
+        <div class="relative overflow-hidden">
+          <div id="t-track" class="t-track">
+            <div class="t-slide pr-2">
+              <div class="bg-white rounded-3xl p-8 md:p-10 shadow-card border border-line">
+                <div class="flex items-center gap-1 text-accent mb-5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                </div>
+                <p class="text-[20px] md:text-[24px] font-medium leading-[1.4] tracking-tight text-ink mb-7">
+                  "Trodde først det var for godt til å være sant. Telefonen så ut og fungerte som ny — sparte 4 000 kr mot å kjøpe ny hos operatøren."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-[14px]">ML</div>
+                  <div>
+                    <div class="text-[14px] font-semibold">Marius L.</div>
+                    <div class="text-[12px] text-ink/50">Verifisert kjøp · iPhone 13 Pro</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="t-slide pr-2">
+              <div class="bg-white rounded-3xl p-8 md:p-10 shadow-card border border-line">
+                <div class="flex items-center gap-1 text-accent mb-5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                </div>
+                <p class="text-[20px] md:text-[24px] font-medium leading-[1.4] tracking-tight text-ink mb-7">
+                  "Bestilte til sønnen min som ungdomsskolegave. Pakket pent, kom på 2 dager. Han trodde den var splitter ny. Jeg sa ingenting."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-[14px]">IB</div>
+                  <div>
+                    <div class="text-[14px] font-semibold">Ingrid B.</div>
+                    <div class="text-[12px] text-ink/50">Verifisert kjøp · iPhone 13</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="t-slide pr-2">
+              <div class="bg-white rounded-3xl p-8 md:p-10 shadow-card border border-line">
+                <div class="flex items-center gap-1 text-accent mb-5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                </div>
+                <p class="text-[20px] md:text-[24px] font-medium leading-[1.4] tracking-tight text-ink mb-7">
+                  "Hadde batteriet litt mistro i begynnelsen, men det holder hele dagen. Garantibrevet kom i posten. Skikkelig profesjonelt."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-[14px]">HN</div>
+                  <div>
+                    <div class="text-[14px] font-semibold">Henrik N.</div>
+                    <div class="text-[12px] text-ink/50">Verifisert kjøp · iPhone 14</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="t-slide pr-2">
+              <div class="bg-white rounded-3xl p-8 md:p-10 shadow-card border border-line">
+                <div class="flex items-center gap-1 text-accent mb-5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3-6.18 3.7 1.64-7.03L2 9.27l7.19-.61L12 2l2.81 6.66L22 9.27l-5.46 4.7L18.18 21z"/></svg>
+                </div>
+                <p class="text-[20px] md:text-[24px] font-medium leading-[1.4] tracking-tight text-ink mb-7">
+                  "Kjapp kundeservice da jeg lurte på batteri-helsen. Svar samme dag. Telefonen kom raskt og fungerer prikkfritt — anbefales."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-[14px]">SK</div>
+                  <div>
+                    <div class="text-[14px] font-semibold">Sofie K.</div>
+                    <div class="text-[12px] text-ink/50">Verifisert kjøp · iPhone 13 Pro Max</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dots -->
+          <div class="flex items-center gap-2 mt-6" id="t-dots">
+            <button data-i="0" class="t-dot w-8 h-1.5 rounded-full bg-accent transition" aria-label="Anmeldelse 1"></button>
+            <button data-i="1" class="t-dot w-8 h-1.5 rounded-full bg-ink/15 transition" aria-label="Anmeldelse 2"></button>
+            <button data-i="2" class="t-dot w-8 h-1.5 rounded-full bg-ink/15 transition" aria-label="Anmeldelse 3"></button>
+            <button data-i="3" class="t-dot w-8 h-1.5 rounded-full bg-ink/15 transition" aria-label="Anmeldelse 4"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── CTA BANNER ─────────── -->
+<section class="py-20 md:py-28 bg-accent relative overflow-hidden">
+  <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 80% 30%, white, transparent 35%), radial-gradient(circle at 20% 70%, white, transparent 30%);"></div>
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8 relative">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-12">
+      <div class="max-w-[640px] reveal">
+        <h2 class="h-display text-white text-[40px] md:text-[72px]">
+          Klar for å <em class="not-italic font-extrabold" style="font-style:italic">spare 50%?</em>
+        </h2>
+        <p class="mt-5 text-white/80 text-[16px] md:text-[18px] max-w-[480px] leading-relaxed">
+          Samme iPhone, halv pris, 1 års garanti. Det er hele konseptet.
+        </p>
+      </div>
+      <a href="#shop" class="inline-flex items-center gap-3 bg-white text-ink rounded-full px-7 py-4 font-semibold text-[15px] hover:bg-ink hover:text-white transition reveal">
+        Se telefoner
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer id="footer" class="bg-ink text-white pt-20 pb-10">
+  <div class="max-w-[1280px] mx-auto px-5 md:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 mb-16">
+      <div>
+        <div class="wordmark text-[22px] text-white mb-5"><span class="tele">Tele</span><span class="marked">marked</span><span class="dot">.</span></div>
+        <p class="text-[13px] text-white/55 leading-relaxed max-w-[260px]">
+          Norges anbefalte butikk for sertifiserte refurbished iPhones. Spar penger, redd planeten.
+        </p>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-[0.18em] text-white/40 font-semibold mb-5">Handle</div>
+        <ul class="space-y-3 text-[14px] text-white/75">
+          <li><a href="#" class="hover:text-accent transition">Alle iPhones</a></li>
+          <li><a href="#" class="hover:text-accent transition">iPhone 14</a></li>
+          <li><a href="#" class="hover:text-accent transition">iPhone 13</a></li>
+          <li><a href="#" class="hover:text-accent transition">iPhone 12</a></li>
+          <li><a href="#" class="hover:text-accent transition">Tilbud</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-[0.18em] text-white/40 font-semibold mb-5">Vilkår</div>
+        <ul class="space-y-3 text-[14px] text-white/75">
+          <li><a href="#" class="hover:text-accent transition">Garanti</a></li>
+          <li><a href="#" class="hover:text-accent transition">14 dagers åpent kjøp</a></li>
+          <li><a href="#" class="hover:text-accent transition">Frakt og levering</a></li>
+          <li><a href="#" class="hover:text-accent transition">Personvern</a></li>
+          <li><a href="#" class="hover:text-accent transition">Kjøpsvilkår</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[11px] uppercase tracking-[0.18em] text-white/40 font-semibold mb-5">Selskapsinfo</div>
+        <ul class="space-y-3 text-[14px] text-white/75">
+          <li><a href="#" class="hover:text-accent transition">Om oss</a></li>
+          <li><a href="#" class="hover:text-accent transition">Slik tester vi</a></li>
+          <li><a href="#" class="hover:text-accent transition">Bærekraft</a></li>
+          <li><a href="#" class="hover:text-accent transition">Kontakt</a></li>
+          <li><a href="#" class="hover:text-accent transition">Karriere</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="text-[12px] text-white/40">© 2026 Telemarked AS · Org.nr 999 999 999 · Oslo, Norge</div>
+      <div class="flex items-center gap-3">
+        <!-- Vipps -->
+        <div class="bg-white rounded-md px-3 py-1.5 h-8 flex items-center" title="Vipps">
+          <span class="font-bold text-[12px]" style="color:#ff5b24">Vipps</span>
+        </div>
+        <!-- Klarna -->
+        <div class="bg-[#FFA8CD] rounded-md px-3 py-1.5 h-8 flex items-center" title="Klarna">
+          <span class="font-bold text-[12px] text-black">Klarna.</span>
+        </div>
+        <!-- Visa -->
+        <div class="bg-white rounded-md px-3 py-1.5 h-8 flex items-center" title="Visa">
+          <span class="font-bold italic text-[13px]" style="color:#1A1F71">VISA</span>
+        </div>
+        <!-- Mastercard -->
+        <div class="bg-white rounded-md px-2 py-1.5 h-8 flex items-center gap-0" title="Mastercard">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#EB001B] -mr-1"></span>
+          <span class="w-3.5 h-3.5 rounded-full bg-[#F79E1B] opacity-90"></span>
+        </div>
+        <!-- PayPal -->
+        <div class="bg-white rounded-md px-3 py-1.5 h-8 flex items-center" title="PayPal">
+          <span class="font-bold italic text-[12px]" style="color:#003087">Pay<span style="color:#009cde">Pal</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ─────────── JS ─────────── -->
+<script>
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ───────── Lenis smooth scroll ─────────
+  let lenis;
+  if (!prefersReduced && window.Lenis) {
+    lenis = new Lenis({
+      duration: 1.1,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+    function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    // Anchor links work with Lenis
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href');
+        if (id.length > 1) {
+          const el = document.querySelector(id);
+          if (el) { e.preventDefault(); lenis.scrollTo(el, { offset: -80 }); }
+        }
+      });
+    });
+  }
+
+  // ───────── Header glass on scroll ─────────
+  const header = document.getElementById('site-header');
+  function updateHeader() {
+    if (window.scrollY > 20) { header.classList.add('header-glass'); header.classList.remove('header-top'); }
+    else { header.classList.add('header-top'); header.classList.remove('header-glass'); }
+  }
+  updateHeader();
+  window.addEventListener('scroll', updateHeader, { passive: true });
+
+  // ───────── Reveal on scroll ─────────
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        // small per-row stagger when many siblings
+        const siblings = Array.from(e.target.parentElement.children).filter(c => c.classList.contains('reveal'));
+        const idx = siblings.indexOf(e.target);
+        const delay = Math.min(idx * 60, 360);
+        setTimeout(() => e.target.classList.add('is-visible'), delay);
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ───────── Build test list ─────────
+  const tests = [
+    'Batteri','Skjerm','Front-kamera','Bak-kamera','Face ID',
+    'Høyttalere','Mikrofon','Knapper','Lade-port','WiFi',
+    'Bluetooth','GPS','Vibrasjon','Touch-respons'
+  ];
+  const testList = document.getElementById('test-list');
+  tests.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = 'test-row flex items-center justify-between py-3 border-b border-line';
+    li.dataset.idx = i;
+    li.innerHTML = `
+      <div class="flex items-center gap-4">
+        <span class="dot">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+        </span>
+        <span class="label text-[15px] md:text-[16px]">${t}</span>
+      </div>
+      <span class="status">Venter</span>
+    `;
+    testList.appendChild(li);
+  });
+
+  // ───────── Scroll-driven test reveal (GSAP ScrollTrigger) ─────────
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const rows = document.querySelectorAll('.test-row');
+    const total = rows.length;
+    const ring = document.getElementById('ring-circle');
+    const ringText = document.getElementById('ring-text');
+    const ringCircumference = 2 * Math.PI * 24; // 150.8
+    const progressBar = document.getElementById('progress-bar');
+    const progressCount = document.getElementById('progress-count');
+    const stamp = document.getElementById('cert-stamp');
+    const scanBeam = document.getElementById('scan-beam');
+
+    let lastPassed = -1;
+
+    ScrollTrigger.create({
+      trigger: '#testing-stage',
+      start: 'top 70%',
+      end: 'bottom 80%',
+      scrub: 0.6,
+      onUpdate: (self) => {
+        const p = self.progress; // 0..1
+        const passed = Math.min(total, Math.floor(p * (total + 0.5)));
+
+        // Update rows
+        rows.forEach((r, i) => {
+          if (i < passed) {
+            if (!r.classList.contains('passed')) {
+              r.classList.add('passed');
+              r.querySelector('.status').textContent = 'Passert';
+            }
+          } else {
+            r.classList.remove('passed');
+            r.querySelector('.status').textContent = 'Venter';
+          }
+        });
+
+        // Progress ring
+        const pct = Math.round((passed / total) * 100);
+        ring.style.strokeDashoffset = ringCircumference * (1 - passed / total);
+        ringText.textContent = pct + '%';
+        progressBar.style.width = pct + '%';
+        progressCount.textContent = passed;
+
+        // Stamp
+        if (passed >= total) stamp.classList.add('show');
+        else stamp.classList.remove('show');
+
+        // Scan beam — animate y-position with progress within section
+        const beamTop = Math.min(100, p * 110);
+        scanBeam.style.top = beamTop + '%';
+        scanBeam.style.opacity = (p > 0.02 && p < 0.98) ? '1' : '0';
+
+        lastPassed = passed;
+      }
+    });
+  }
+
+  // ───────── Stats counters ─────────
+  const counters = document.querySelectorAll('.stat-counter');
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const target = parseFloat(el.dataset.target);
+        const suffix = el.dataset.suffix || '';
+        const prefix = el.dataset.prefix || '';
+        const duration = 1800;
+        const start = performance.now();
+        const ease = t => 1 - Math.pow(1 - t, 3);
+        function tick(now) {
+          const p = Math.min(1, (now - start) / duration);
+          const v = Math.floor(ease(p) * target);
+          el.textContent = prefix + v.toLocaleString('no-NO') + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = prefix + target.toLocaleString('no-NO') + suffix;
+        }
+        requestAnimationFrame(tick);
+        counterObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.4 });
+  counters.forEach(c => counterObs.observe(c));
+
+  // ───────── Hero parallax (subtle) ─────────
+  if (!prefersReduced) {
+    const heroImg = document.getElementById('hero-phone');
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y < 800 && heroImg) {
+        heroImg.style.transform = `translateY(${y * 0.05}px) rotate(-2deg)`;
+      }
+    }, { passive: true });
+  }
+
+  // ───────── Testimonial slider ─────────
+  (function(){
+    const track = document.getElementById('t-track');
+    const dots = document.querySelectorAll('.t-dot');
+    if (!track) return;
+    let i = 0;
+    const count = dots.length;
+    function go(idx) {
+      i = (idx + count) % count;
+      track.style.transform = `translateX(-${i * 100}%)`;
+      dots.forEach((d, n) => {
+        d.classList.toggle('bg-accent', n === i);
+        d.classList.toggle('bg-ink/15', n !== i);
+      });
+    }
+    dots.forEach(d => d.addEventListener('click', () => go(parseInt(d.dataset.i, 10))));
+    if (!prefersReduced) {
+      setInterval(() => go(i + 1), 5000);
+    }
+  })();
+</script>
+
+</body>
+</html>

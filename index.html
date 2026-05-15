@@ -404,18 +404,15 @@
       if (progressBar) progressBar.style.width = pctNum + '%';
       if (progressCount) progressCount.textContent = passed;
       if (stamp) stamp.classList.toggle('show', passed >= total);
-      if (trace) trace.style.strokeDashoffset = String(1800 * (1 - passed / total));
-      if (traceChecks) traceChecks.style.opacity = passed >= total ? '1' : '0';
-      if (fillEl) fillEl.style.height = (passed / total * 100) + '%';
+      if (trace) trace.style.strokeDashoffset = String(1480 * (1 - passed / total));
       if (countNum) countNum.textContent = passed;
       if (labelEl && passed > 0) { labelEl.textContent = tests[passed - 1]; labelEl.classList.add('show'); }
-      if (shimmer) shimmer.classList.toggle('glow', passed >= total);
       if (glow) glow.classList.toggle('on', passed >= total);
       if (testingPhoneImg) {
-        const sat = 0.85 + (passed / total) * 0.45;
-        const bright = 0.98 + (passed / total) * 0.07;
-        const con = 1.0 + (passed / total) * 0.08;
-        const rot = -1.5 + (passed / total) * 3;
+        const sat = 0.9 + (passed / total) * 0.3;
+        const bright = 1.0 + (passed / total) * 0.04;
+        const con = 1.0 + (passed / total) * 0.05;
+        const rot = -1 + (passed / total) * 2;
         testingPhoneImg.style.setProperty('--polish-sat', sat.toFixed(2));
         testingPhoneImg.style.setProperty('--polish-bright', bright.toFixed(2));
         testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
@@ -748,18 +745,7 @@
   .phone-checkpoint.on { opacity:1; transform: scale(1); }
 
 
-  /* v2.4: phone test feedback — visible checkpoints + count + fill */
-  .phone-fx { position:absolute; inset:0; pointer-events:none; }
-  .phone-cp { position:absolute; width:32px; height:32px; border-radius:50%; background:#FFFFFF; border:3px solid #1B6E2F; box-shadow:0 6px 18px rgba(27,110,47,0.45), 0 0 0 0 rgba(27,110,47,0.4); opacity:0; transform: translate(-50%,-50%) scale(0.4); transition: opacity 320ms cubic-bezier(.2,.8,.2,1), transform 320ms cubic-bezier(.2,1.6,.4,1); display:flex; align-items:center; justify-content:center; }
-  .phone-cp::after { content:''; width:14px; height:14px; background:#1B6E2F; border-radius:50%; box-shadow:inset 0 0 0 3px #fff; }
-  .phone-cp.on { opacity:1; transform: translate(-50%,-50%) scale(1); animation: cpPulse 1.4s ease-out 0s 1; }
-  @keyframes cpPulse { 0% { box-shadow:0 6px 18px rgba(27,110,47,0.45), 0 0 0 0 rgba(27,110,47,0.7); } 100% { box-shadow:0 6px 18px rgba(27,110,47,0.45), 0 0 0 20px rgba(27,110,47,0); } }
-  .phone-cp::before { content: attr(data-label); position:absolute; left:50%; bottom: calc(100% + 8px); transform: translateX(-50%); background:#121212; color:#fff; font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; white-space:nowrap; opacity:0; transition:opacity 220ms ease; pointer-events:none; }
-  .phone-cp.recent::before { opacity:1; }
-  .phone-fill { position:absolute; left:0; right:0; bottom:0; height:0%; background: linear-gradient(0deg, rgba(27,110,47,0.32) 0%, rgba(27,110,47,0.08) 70%, rgba(27,110,47,0) 100%); pointer-events:none; transition: height 420ms cubic-bezier(.2,.8,.2,1); z-index:3; }
-  .phone-fill::after { content:''; position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg, transparent 0%, #1B6E2F 30%, #1B6E2F 70%, transparent 100%); box-shadow:0 0 16px 4px rgba(27,110,47,0.6); }
-  .phone-count { position:absolute; left:50%; top:-44px; transform: translateX(-50%); background:#121212; color:#fff; padding:8px 16px; border-radius:999px; font-size:14px; font-weight:700; letter-spacing:0.02em; box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
-  .phone-count .muted { color:#888; font-weight:500; margin-left:2px; }
+  /* v2.4 testing-section dead CSS removed (superseded by v2.8/v2.9 + caused black-blob bug) */
 
 
   /* v2.4: drop the white-card frame on product cards — image sits on shadow alone */
@@ -801,20 +787,7 @@
   }
 
 
-  /* v2.5: bump checkpoints — make them unmissable */
-  .phone-cp { width:44px !important; height:44px !important; z-index:10 !important; border-width:4px !important; }
-  .phone-cp::after { width:18px !important; height:18px !important; }
-  .phone-cp::before { font-size:12px !important; padding:6px 12px !important; }
-  /* Force the checkpoints to be visible even before .on is toggled (for debugging) — semi-transparent */
-  .phone-cp { opacity: 0.18; transform: translate(-50%,-50%) scale(0.85); }
-  .phone-cp.on { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; }
-
-
-  /* v2.6: checkpoints visible by default (gray ring) — turn green when test passes */
-  .phone-cp { opacity: 0.55 !important; transform: translate(-50%,-50%) scale(0.9) !important; background:#FFFFFF !important; border:3px solid #BBB !important; }
-  .phone-cp::after { background: #DDD !important; box-shadow: inset 0 0 0 2px #fff !important; }
-  .phone-cp.on { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; border-color: #1B6E2F !important; }
-  .phone-cp.on::after { background: #1B6E2F !important; }
+  /* v2.5/v2.6 .phone-cp rules removed — checkpoint approach abandoned in v2.8 */
 
 
   /* v2.8: stronger hero photo fix — mask-image fades the photo's white edges */
@@ -824,70 +797,9 @@
     filter: none !important;
     mix-blend-mode: normal !important;
   }
-  /* Also fade the testing-section phone */
-  #testing img {
-    mix-blend-mode: normal !important;
-  }
+  /* ───── v2.15: TESTING SECTION — consolidated, clean cascade ───── */
 
-
-  /* v2.8: cinematic test animation */
-  .phone-cinema { position:absolute; inset:0; pointer-events:none; z-index:5; }
-  .paint-trail { position:absolute; inset:0; width:100%; height:100%; z-index:4; overflow:visible; }
-  .paint-trail #paint-path { transition: stroke-dashoffset 0.4s linear; filter: drop-shadow(0 0 10px rgba(255,107,53,0.45)); }
-
-  /* Phone polish - desaturated start, vibrant end */
-  #testing img {
-    transition: filter 600ms cubic-bezier(.2,.8,.2,1), transform 800ms cubic-bezier(.2,.8,.2,1);
-    filter: saturate(var(--polish-sat, 0.4)) brightness(var(--polish-bright, 0.92));
-    transform: rotate(var(--polish-rot, -2deg));
-  }
-
-  /* Shimmer at 100% */
-  .phone-shimmer { position:absolute; inset:8% 22%; border-radius:36px; opacity:0; background: linear-gradient(115deg, transparent 0%, transparent 38%, rgba(255,255,255,0.55) 50%, transparent 62%, transparent 100%); background-size: 220% 100%; background-position: -100% 0; transition: opacity 320ms ease; z-index:6; pointer-events:none; mix-blend-mode: screen; }
-  .phone-shimmer.glow { opacity: 1; animation: phoneShine 1.6s ease-in-out 1; }
-  @keyframes phoneShine { 0% { background-position: -100% 0; } 100% { background-position: 200% 0; } }
-
-  /* Current test floating label */
-  .phone-current-test {
-    position:absolute; top: -50px; left: 50%; transform: translateX(-50%) translateY(8px);
-    background:#121212; color:#fff; padding:10px 18px; border-radius:999px;
-    font-size:13px; font-weight:700; letter-spacing:0.02em;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
-    opacity:0; transition: opacity 280ms ease, transform 280ms cubic-bezier(.2,1.6,.4,1);
-    white-space:nowrap; z-index:7;
-  }
-  .phone-current-test.show {
-    opacity:1; transform: translateX(-50%) translateY(0);
-  }
-  .phone-current-test::before { content:'✓'; color:#1B6E2F; font-weight:900; margin-right:6px; }
-
-  .phone-count { position:absolute; bottom: -56px; left:50%; transform:translateX(-50%); background:#121212; color:#fff; padding:8px 18px; border-radius:999px; font-size:13px; font-weight:700; box-shadow:0 8px 22px rgba(0,0,0,0.18); z-index:7; white-space:nowrap; }
-  .phone-count .muted { color:#888; font-weight:500; margin-left:6px; }
-
-
-  /* v2.9: stronger polish + confetti + completion glow */
-  #testing img {
-    transition: filter 700ms cubic-bezier(.2,.8,.2,1), transform 900ms cubic-bezier(.2,.8,.2,1) !important;
-    filter: saturate(var(--polish-sat, 0.85)) brightness(var(--polish-bright, 0.98)) contrast(var(--polish-con, 1.0)) !important;
-  }
-  /* Pulse at each test pass */
-  @keyframes testPulse {
-    0% { transform: rotate(var(--polish-rot, 0deg)) scale(1); }
-    50% { transform: rotate(var(--polish-rot, 0deg)) scale(1.015); }
-    100% { transform: rotate(var(--polish-rot, 0deg)) scale(1); }
-  }
-  #testing img.pulse { animation: testPulse 480ms cubic-bezier(.2,.8,.2,1) 1; }
-
-  /* Confetti */
-  .phone-confetti { position:absolute; left:50%; top:30%; width:0; height:0; pointer-events:none; z-index:9; }
-  .confetti-piece { position:absolute; width:8px; height:14px; border-radius:2px; opacity:0; will-change: transform, opacity; }
-
-  /* Completion glow ring around the phone area */
-  .completion-glow { position:absolute; inset:5%; border-radius:36px; pointer-events:none; opacity:0; z-index:3; box-shadow: 0 0 60px 12px rgba(27,110,47,0.45), inset 0 0 50px 10px rgba(27,110,47,0.18); transition: opacity 480ms ease; }
-  .completion-glow.on { opacity:1; }
-
-
-  /* v2.10: aggressive hero white-bg killer — multiple techniques stacked */
+  /* Hero phone — mask + multiply for clean edges */
   #hero-phone {
     -webkit-mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
             mask-image: radial-gradient(ellipse 60% 88% at 50% 50%, #000 50%, rgba(0,0,0,0.85) 70%, transparent 100%) !important;
@@ -897,27 +809,64 @@
     mix-blend-mode: multiply !important;
     background: transparent !important;
   }
-  /* Backup: if browser ignores mask, use clip-path */
   @supports not (mask-image: radial-gradient(black, transparent)) {
     #hero-phone { clip-path: ellipse(48% 49% at 50% 50%) !important; }
   }
 
-
-  /* v2.11: mask testing phone the same way as hero — proven to kill white-bg cleanly */
-  #testing img {
-    -webkit-mask-image: radial-gradient(ellipse 75% 92% at 50% 50%, #000 60%, transparent 100%) !important;
-            mask-image: radial-gradient(ellipse 75% 92% at 50% 50%, #000 60%, transparent 100%) !important;
-    mix-blend-mode: normal !important;
+  /* Testing-section stage: transparent so phone sits on bg-paper directly */
+  #testing .stage-mesh {
+    background: transparent !important;
   }
 
+  /* Testing-section phone — multiply against bg-paper (#FAFAF8) kills the white photo edge naturally */
+  #testing img {
+    position: relative;
+    z-index: 5;
+    mix-blend-mode: multiply;
+    transform: rotate(var(--polish-rot, 0deg));
+    filter: saturate(var(--polish-sat, 0.9)) brightness(var(--polish-bright, 1)) contrast(var(--polish-con, 1));
+    transition:
+      filter 600ms cubic-bezier(.2,.8,.2,1),
+      transform 800ms cubic-bezier(.2,.8,.2,1);
+  }
 
-  /* v2.11: trace SVG must be above iPhone img to be visible */
-  #testing #trace-line { z-index: 15 !important; }
-  #testing img { position: relative; z-index: 5 !important; }
-  /* The current-test label needs to stay on top too */
-  .phone-current-test { z-index: 20 !important; }
-  .phone-count { z-index: 20 !important; }
-  /* Subtly lower mask opacity so trace-line is visible THROUGH the phone where it overlaps */
+  /* Trace-line SVG: above phone, cleaner stroke, no heavy blur */
+  #testing #trace-line { z-index: 15; }
+  #testing #trace-path { transition: stroke-dashoffset 380ms cubic-bezier(.2,.8,.2,1); }
+
+  /* Cinema overlay container */
+  .phone-cinema { position:absolute; inset:0; pointer-events:none; z-index:5; }
+
+  /* Current-test floating label (top of phone card) */
+  .phone-current-test {
+    position:absolute; top: -22px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background:#121212; color:#fff; padding:9px 16px; border-radius:999px;
+    font-size:12px; font-weight:700; letter-spacing:0.02em;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    opacity:0; transition: opacity 280ms ease, transform 280ms cubic-bezier(.2,1.6,.4,1);
+    white-space:nowrap; z-index:20;
+  }
+  .phone-current-test.show { opacity:1; transform: translateX(-50%) translateY(0); }
+  .phone-current-test::before { content:'✓'; color:#1B6E2F; font-weight:900; margin-right:6px; }
+
+  /* Phone count pill (bottom of phone card) — bottom-only, never top, otherwise it stretches */
+  .phone-count {
+    position:absolute; bottom:-22px; left:50%; transform:translateX(-50%);
+    top: auto;
+    background:#121212; color:#fff; padding:8px 16px; border-radius:999px;
+    font-size:12px; font-weight:700;
+    box-shadow:0 8px 22px rgba(0,0,0,0.18);
+    z-index:20; white-space:nowrap;
+  }
+  .phone-count .muted { color:#888; font-weight:500; margin-left:4px; }
+
+  /* Completion glow (soft green halo at 100%) */
+  .completion-glow {
+    position:absolute; inset:5%; border-radius:36px; pointer-events:none; opacity:0; z-index:3;
+    box-shadow: 0 0 60px 12px rgba(27,110,47,0.45), inset 0 0 50px 10px rgba(27,110,47,0.18);
+    transition: opacity 480ms ease;
+  }
+  .completion-glow.on { opacity:1; }
 
 </style>
 </head>
@@ -1155,35 +1104,25 @@
             </svg>
 
 
-            <!-- v2.10: scroll-drawn paint line - traces around and through the phone -->
-            <svg id="trace-line" class="absolute inset-0 pointer-events-none" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="z-index:15;">
+            <!-- v2.15: scroll-drawn trace line — clean, no blur, tighter path around phone -->
+            <svg id="trace-line" class="absolute inset-0 pointer-events-none" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="trace-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#FF6B35"/>
                   <stop offset="55%" stop-color="#FF8A50"/>
                   <stop offset="100%" stop-color="#1B6E2F"/>
                 </linearGradient>
-                <filter id="trace-blur" x="-10%" y="-10%" width="120%" height="120%">
-                  <feGaussianBlur stdDeviation="1.5"/>
-                </filter>
               </defs>
-              <!-- A continuous flowing path that threads through the phone area -->
+              <!-- Soft path that loops around the phone region; total length ~1480 -->
               <path id="trace-path"
-                    d="M 80 60 C 130 30, 200 25, 260 55 S 360 130, 350 220 S 320 350, 230 410 S 90 420, 70 320 S 40 180, 100 90"
+                    d="M 92 70 C 150 36, 250 32, 312 76 C 372 122, 372 220, 348 308 C 322 396, 232 442, 152 416 C 78 392, 36 308, 50 220 C 62 142, 88 92, 92 70"
                     fill="none"
                     stroke="url(#trace-grad)"
-                    stroke-width="6"
+                    stroke-width="3"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    filter="url(#trace-blur)"
-                    stroke-dasharray="1800"
-                    stroke-dashoffset="1800"
-                    style="transition: stroke-dashoffset 380ms ease-out;"/>
-              <!-- "✓" marks that appear at completion -->
-              <g id="trace-checks" style="opacity:0; transition:opacity 480ms ease-out;">
-                <circle cx="200" cy="250" r="28" fill="rgba(27,110,47,0.18)"/>
-                <path d="M 188 252 L 198 262 L 214 240" fill="none" stroke="#1B6E2F" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-              </g>
+                    stroke-dasharray="1480"
+                    stroke-dashoffset="1480"/>
             </svg>
 
             <!-- Certified stamp -->
@@ -1196,11 +1135,9 @@
               <div class="text-[10px] font-medium mt-1 text-green-700/80">14/14 bestått</div>
             </div>
 
-            <!-- v2.8: cinematic test animation - paint trail + phone polish -->
+            <!-- v2.15: minimal cinema overlay - label + count pill + completion glow only -->
             <div class="phone-cinema" aria-hidden="true">
               <div class="phone-current-test" id="phone-current-test"></div>
-              <div class="phone-shimmer" id="phone-shimmer"></div>
-              <div class="phone-confetti" id="phone-confetti"></div>
               <div class="completion-glow" id="completion-glow"></div>
               <div class="phone-count">
                 <span id="phone-count-num">0</span><span class="muted">/14 sjekkpunkter</span>
@@ -1964,25 +1901,22 @@
         if (passed >= total) stamp.classList.add('show');
         else stamp.classList.remove('show');
 
-        // v2.8: cinematic test driver — paint trail + polish filter + current test label + shimmer
+        // v2.15: clean test driver — polish filter + trace line + current test label
         const tests = ['Batteri','Skjerm','Front-kamera','Bak-kamera','Face ID','Høyttalere','Mikrofon','Knapper','Lade-port','WiFi','Bluetooth','GPS','Vibrasjon','Touch-respons'];
-        // Phone polish CSS variables
         const testingPhoneImg = document.querySelector('#testing img');
         if (testingPhoneImg) {
-          const sat = 0.85 + (passed / total) * 0.45;
-          const bright = 0.98 + (passed / total) * 0.07;
-          const con = 1.0 + (passed / total) * 0.08;
-          testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
-          const rot = -3 + (passed / total) * 6;
+          const sat = 0.9 + (passed / total) * 0.3;
+          const bright = 1.0 + (passed / total) * 0.04;
+          const con = 1.0 + (passed / total) * 0.05;
+          const rot = -1 + (passed / total) * 2;
           testingPhoneImg.style.setProperty('--polish-sat', sat.toFixed(2));
           testingPhoneImg.style.setProperty('--polish-bright', bright.toFixed(2));
+          testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
           testingPhoneImg.style.setProperty('--polish-rot', rot.toFixed(1) + 'deg');
         }
-        // v2.10: scroll-drawn trace line
+        // Scroll-drawn trace line (path total length 1480)
         const trace = document.getElementById('trace-path');
-        if (trace) trace.style.strokeDashoffset = String(1800 * (1 - passed / total));
-        const traceChecks = document.getElementById('trace-checks');
-        if (traceChecks) traceChecks.style.opacity = passed >= total ? '1' : '0';
+        if (trace) trace.style.strokeDashoffset = String(1480 * (1 - passed / total));
         // Current test label
         const labelEl = document.getElementById('phone-current-test');
         if (labelEl) {
@@ -1996,52 +1930,11 @@
         // Count
         const countNum = document.getElementById('phone-count-num');
         if (countNum) countNum.textContent = passed;
-        // Shimmer at 100%
-        const shimmer = document.getElementById('phone-shimmer');
-        if (shimmer) shimmer.classList.toggle('glow', passed >= total);
-        // v2.9: pulse on each newly-passed test
-        if (testingPhoneImg && passed > (window.__lastPassed || 0)) {
-          testingPhoneImg.classList.remove('pulse');
-          void testingPhoneImg.offsetWidth; // restart animation
-          testingPhoneImg.classList.add('pulse');
-        }
-        window.__lastPassed = passed;
-        // v2.9: confetti burst + completion glow at 100%
+        // v2.15: completion glow at 100% (confetti/shimmer/pulse dropped)
         const glow = document.getElementById('completion-glow');
         if (glow) glow.classList.toggle('on', passed >= total);
-        if (passed >= total && !window.__confettiFired) {
-          window.__confettiFired = true;
-          const cf = document.getElementById('phone-confetti');
-          if (cf) {
-            const colors = ['#FF6B35', '#1B6E2F', '#FFB400', '#FFFFFF', '#FFAA70'];
-            for (let i = 0; i < 40; i++) {
-              const piece = document.createElement('div');
-              piece.className = 'confetti-piece';
-              piece.style.background = colors[i % colors.length];
-              piece.style.left = '0px';
-              piece.style.top = '0px';
-              cf.appendChild(piece);
-              const angle = (Math.PI * 2 * i) / 40 + Math.random() * 0.6 - 0.3;
-              const dist = 140 + Math.random() * 120;
-              const dx = Math.cos(angle) * dist;
-              const dy = Math.sin(angle) * dist - 30;
-              const dur = 1100 + Math.random() * 700;
-              const delay = Math.random() * 250;
-              piece.animate([
-                { opacity: 0, transform: 'translate(0, 0) rotate(0deg)' },
-                { opacity: 1, transform: `translate(${dx*0.5}px, ${dy*0.6}px) rotate(${180}deg)`, offset: 0.5 },
-                { opacity: 0, transform: `translate(${dx}px, ${dy + 200}px) rotate(${360 + Math.random()*180}deg)` }
-              ], { duration: dur, delay: delay, easing: 'cubic-bezier(.2,.6,.6,1)', fill: 'forwards' });
-              setTimeout(() => piece.remove(), dur + delay + 100);
-            }
-          }
-        }
-        if (passed < total) window.__confettiFired = false;
 
-        // Scan beam — animate y-position with progress within section
-        const beamTop = Math.min(100, p * 110);
-        scanBeam.style.top = beamTop + '%';
-        scanBeam.style.opacity = (p > 0.02 && p < 0.98) ? '1' : '0';
+        // Scan beam disabled in v2.15
 
         lastPassed = passed;
       }

@@ -762,8 +762,8 @@
   }
   /* Also fade the testing-section phone */
   #testing img {
-    -webkit-mask-image: radial-gradient(ellipse 75% 92% at center, #000 55%, transparent 100%);
-            mask-image: radial-gradient(ellipse 75% 92% at center, #000 55%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 95% 98% at center, #000 80%, transparent 100%);
+            mask-image: radial-gradient(ellipse 95% 98% at center, #000 80%, transparent 100%);
     mix-blend-mode: normal !important;
   }
 
@@ -801,6 +801,28 @@
 
   .phone-count { position:absolute; bottom: -56px; left:50%; transform:translateX(-50%); background:#121212; color:#fff; padding:8px 18px; border-radius:999px; font-size:13px; font-weight:700; box-shadow:0 8px 22px rgba(0,0,0,0.18); z-index:7; white-space:nowrap; }
   .phone-count .muted { color:#888; font-weight:500; margin-left:6px; }
+
+
+  /* v2.9: stronger polish + confetti + completion glow */
+  #testing img {
+    transition: filter 700ms cubic-bezier(.2,.8,.2,1), transform 900ms cubic-bezier(.2,.8,.2,1) !important;
+    filter: saturate(var(--polish-sat, 0.35)) brightness(var(--polish-bright, 0.88)) contrast(var(--polish-con, 0.95)) !important;
+  }
+  /* Pulse at each test pass */
+  @keyframes testPulse {
+    0% { transform: rotate(var(--polish-rot, 0deg)) scale(1); }
+    50% { transform: rotate(var(--polish-rot, 0deg)) scale(1.015); }
+    100% { transform: rotate(var(--polish-rot, 0deg)) scale(1); }
+  }
+  #testing img.pulse { animation: testPulse 480ms cubic-bezier(.2,.8,.2,1) 1; }
+
+  /* Confetti */
+  .phone-confetti { position:absolute; left:50%; top:30%; width:0; height:0; pointer-events:none; z-index:9; }
+  .confetti-piece { position:absolute; width:8px; height:14px; border-radius:2px; opacity:0; will-change: transform, opacity; }
+
+  /* Completion glow ring around the phone area */
+  .completion-glow { position:absolute; inset:5%; border-radius:36px; pointer-events:none; opacity:0; z-index:3; box-shadow: 0 0 60px 12px rgba(27,110,47,0.45), inset 0 0 50px 10px rgba(27,110,47,0.18); transition: opacity 480ms ease; }
+  .completion-glow.on { opacity:1; }
 
 </style>
 </head>
@@ -1049,21 +1071,10 @@
 
             <!-- v2.8: cinematic test animation - paint trail + phone polish -->
             <div class="phone-cinema" aria-hidden="true">
-              <svg class="paint-trail" viewBox="0 0 400 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="paint-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#FF6B35"/>
-                    <stop offset="50%" stop-color="#FFAA70"/>
-                    <stop offset="100%" stop-color="#1B6E2F"/>
-                  </linearGradient>
-                </defs>
-                <!-- A swirling path around the phone region -->
-                <path id="paint-path" d="M 80 100 C 120 50, 280 50, 320 100 S 380 200, 350 280 S 300 420, 200 440 S 80 400, 60 320 S 30 180, 80 100 Z"
-                      fill="none" stroke="url(#paint-grad)" stroke-width="5" stroke-linecap="round"
-                      stroke-dasharray="1500" stroke-dashoffset="1500"/>
-              </svg>
               <div class="phone-current-test" id="phone-current-test"></div>
               <div class="phone-shimmer" id="phone-shimmer"></div>
+              <div class="phone-confetti" id="phone-confetti"></div>
+              <div class="completion-glow" id="completion-glow"></div>
               <div class="phone-count">
                 <span id="phone-count-num">0</span><span class="muted">/14 sjekkpunkter</span>
               </div>
@@ -1831,8 +1842,10 @@
         // Phone polish CSS variables
         const testingPhoneImg = document.querySelector('#testing img');
         if (testingPhoneImg) {
-          const sat = 0.4 + (passed / total) * 0.8;
-          const bright = 0.92 + (passed / total) * 0.15;
+          const sat = 0.35 + (passed / total) * 1.1;
+          const bright = 0.88 + (passed / total) * 0.22;
+          const con = 0.95 + (passed / total) * 0.15;
+          testingPhoneImg.style.setProperty('--polish-con', con.toFixed(2));
           const rot = -3 + (passed / total) * 6;
           testingPhoneImg.style.setProperty('--polish-sat', sat.toFixed(2));
           testingPhoneImg.style.setProperty('--polish-bright', bright.toFixed(2));
@@ -1857,6 +1870,44 @@
         // Shimmer at 100%
         const shimmer = document.getElementById('phone-shimmer');
         if (shimmer) shimmer.classList.toggle('glow', passed >= total);
+        // v2.9: pulse on each newly-passed test
+        if (testingPhoneImg && passed > (window.__lastPassed || 0)) {
+          testingPhoneImg.classList.remove('pulse');
+          void testingPhoneImg.offsetWidth; // restart animation
+          testingPhoneImg.classList.add('pulse');
+        }
+        window.__lastPassed = passed;
+        // v2.9: confetti burst + completion glow at 100%
+        const glow = document.getElementById('completion-glow');
+        if (glow) glow.classList.toggle('on', passed >= total);
+        if (passed >= total && !window.__confettiFired) {
+          window.__confettiFired = true;
+          const cf = document.getElementById('phone-confetti');
+          if (cf) {
+            const colors = ['#FF6B35', '#1B6E2F', '#FFB400', '#FFFFFF', '#FFAA70'];
+            for (let i = 0; i < 40; i++) {
+              const piece = document.createElement('div');
+              piece.className = 'confetti-piece';
+              piece.style.background = colors[i % colors.length];
+              piece.style.left = '0px';
+              piece.style.top = '0px';
+              cf.appendChild(piece);
+              const angle = (Math.PI * 2 * i) / 40 + Math.random() * 0.6 - 0.3;
+              const dist = 140 + Math.random() * 120;
+              const dx = Math.cos(angle) * dist;
+              const dy = Math.sin(angle) * dist - 30;
+              const dur = 1100 + Math.random() * 700;
+              const delay = Math.random() * 250;
+              piece.animate([
+                { opacity: 0, transform: 'translate(0, 0) rotate(0deg)' },
+                { opacity: 1, transform: `translate(${dx*0.5}px, ${dy*0.6}px) rotate(${180}deg)`, offset: 0.5 },
+                { opacity: 0, transform: `translate(${dx}px, ${dy + 200}px) rotate(${360 + Math.random()*180}deg)` }
+              ], { duration: dur, delay: delay, easing: 'cubic-bezier(.2,.6,.6,1)', fill: 'forwards' });
+              setTimeout(() => piece.remove(), dur + delay + 100);
+            }
+          }
+        }
+        if (passed < total) window.__confettiFired = false;
 
         // Scan beam — animate y-position with progress within section
         const beamTop = Math.min(100, p * 110);

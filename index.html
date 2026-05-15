@@ -12,7 +12,322 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 
 <!-- Tailwind play CDN -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography">
+
+  // ───────── v2: Scroll progress bar + header underline ─────────
+  const sp = document.getElementById('scroll-progress');
+  function updateProgress() {
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = Math.min(100, Math.max(0, (window.scrollY / docH) * 100));
+    sp.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // ───────── v2: Custom cursor ─────────
+  (function(){
+    const ring = document.getElementById('cursor-ring');
+    if (!ring || !matchMedia('(pointer:fine)').matches) { ring.style.display = 'none'; return; }
+    let x = 0, y = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { x = e.clientX; y = e.clientY; });
+    function loop() { rx += (x - rx) * 0.18; ry += (y - ry) * 0.18; ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`; requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+    const hoverable = 'a, button, [role="button"], input, select, textarea, label, .quiz-option, .hotspot, .product-card';
+    document.body.addEventListener('mouseover', e => { if (e.target.closest(hoverable)) ring.classList.add('is-hover'); });
+    document.body.addEventListener('mouseout', e => { if (e.target.closest(hoverable)) ring.classList.remove('is-hover'); });
+  })();
+
+  // ───────── v2: Magnetic buttons ─────────
+  (function(){
+    if (!matchMedia('(pointer:fine)').matches) return;
+    document.querySelectorAll('.magnetic, .btn-primary').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const r = btn.getBoundingClientRect();
+        const x = e.clientX - (r.left + r.width / 2);
+        const y = e.clientY - (r.top + r.height / 2);
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.22}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  })();
+
+  // ───────── v2: Product card spotlight ─────────
+  document.querySelectorAll('.spotlight').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  // ───────── v2: Sist-solgt marquee ─────────
+  (function(){
+    const track = document.getElementById('marquee-track');
+    if (!track) return;
+    const models = ['iPhone 11', 'iPhone 12', 'iPhone 12 Pro', 'iPhone 13', 'iPhone 13 mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 14', 'iPhone 14 Plus'];
+    const cities = ['Oslo', 'Bergen', 'Trondheim', 'Stavanger', 'Drammen', 'Tromsø', 'Kristiansand', 'Sandnes', 'Ålesund', 'Bodø', 'Fredrikstad', 'Bærum'];
+    const conds = ['Nesten ny', 'Pent brukt', 'Godt brukt'];
+    function item() {
+      const m = models[Math.floor(Math.random() * models.length)];
+      const c = cities[Math.floor(Math.random() * cities.length)];
+      const cond = conds[Math.floor(Math.random() * conds.length)];
+      const mins = 2 + Math.floor(Math.random() * 58);
+      return `<div class="marquee-item"><span class="live-dot"></span>Sist solgt: <strong>${m}</strong> · ${cond} · ${c} · ${mins} min siden</div>`;
+    }
+    // Build 14 + duplicate for seamless loop
+    const items = Array.from({length: 14}, item).join('');
+    track.innerHTML = items + items;
+  })();
+
+  // ───────── v2: Hotspots ─────────
+  document.querySelectorAll('.hotspot').forEach(h => {
+    h.addEventListener('click', e => {
+      const open = h.classList.contains('active');
+      document.querySelectorAll('.hotspot.active').forEach(o => o.classList.remove('active'));
+      if (!open) h.classList.add('active');
+      e.stopPropagation();
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.hotspot')) document.querySelectorAll('.hotspot.active').forEach(o => o.classList.remove('active'));
+  });
+
+  // ───────── v2: CO2 tree growth ─────────
+  (function(){
+    const co2 = document.getElementById('co2-counter');
+    const tree = document.getElementById('tree-svg');
+    if (!co2 || !tree) return;
+    const target = parseFloat(co2.dataset.target);
+    new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          tree.style.transform = 'scale(1)';
+          const dur = 1800, start = performance.now();
+          const ease = t => 1 - Math.pow(1 - t, 3);
+          function tick(now) {
+            const p = Math.min(1, (now - start) / dur);
+            const v = Math.floor(ease(p) * target);
+            co2.textContent = v.toLocaleString('no-NO');
+            if (p < 1) requestAnimationFrame(tick); else co2.textContent = target.toLocaleString('no-NO');
+          }
+          requestAnimationFrame(tick);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 }).observe(co2);
+  })();
+
+  // ───────── v2: Sticky mobile CTA ─────────
+  (function(){
+    const cta = document.getElementById('mobile-cta');
+    if (!cta) return;
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const goingDown = y > lastY;
+      const past = y > window.innerHeight * 0.6;
+      const near = (document.documentElement.scrollHeight - y - window.innerHeight) < 300;
+      cta.classList.toggle('show', past && goingDown && !near);
+      lastY = y;
+    }, { passive: true });
+  })();
+
+  // ───────── v2: Quiz logic ─────────
+  (function(){
+    const quiz = document.getElementById('quiz');
+    if (!quiz) return;
+    const answers = {};
+    let step = 1;
+    const totalSteps = 4;
+    const progressFill = document.getElementById('quiz-progress');
+    const counter = document.getElementById('quiz-counter');
+    const restart = document.getElementById('quiz-restart');
+
+    // Catalog with priorities
+    const catalog = [
+      { handle: 'apple-iphone-11',         name: 'iPhone 11',            price: 1990, prio: { price:5, camera:2, screen:2, battery:3 }, size:'standard', img:'iphone-11-black_out' },
+      { handle: 'apple-iphone-11-pro-max', name: 'iPhone 11 Pro Max',    price: 2890, prio: { price:3, camera:4, screen:4, battery:4 }, size:'max',      img:'iphone-11-pro-max-midnight-green_out' },
+      { handle: 'apple-iphone-12',         name: 'iPhone 12',            price: 2590, prio: { price:4, camera:3, screen:3, battery:3 }, size:'standard', img:'iphone-12-blue_out' },
+      { handle: 'apple-iphone-12-mini',    name: 'iPhone 12 mini',       price: 2590, prio: { price:4, camera:3, screen:3, battery:2 }, size:'mini',     img:'iphone-12-green_out_a1e5cb7c-9168-475c-91c5-5fdc1ed60b11' },
+      { handle: 'apple-iphone-12-pro',     name: 'iPhone 12 Pro',        price: 3690, prio: { price:3, camera:4, screen:4, battery:3 }, size:'standard', img:'iphone-12-pro-graphite_out' },
+      { handle: 'apple-iphone-12-pro-max', name: 'iPhone 12 Pro Max',    price: 4390, prio: { price:2, camera:4, screen:5, battery:5 }, size:'max',      img:'iphone-12-pro-silver_out_c93fcabc-40b6-4018-8dbc-b6ae7979a620' },
+      { handle: 'apple-iphone-13',         name: 'iPhone 13',            price: 4390, prio: { price:3, camera:4, screen:4, battery:4 }, size:'standard', img:'iphone-13-green_out' },
+      { handle: 'apple-iphone-13-mini',    name: 'iPhone 13 mini',       price: 4390, prio: { price:3, camera:4, screen:4, battery:3 }, size:'mini',     img:'iphone-13-midnight_out_8a70c31c-51c7-48b3-90ac-b6ab272854b6' },
+      { handle: 'apple-iphone-13-pro',     name: 'iPhone 13 Pro',        price: 5490, prio: { price:2, camera:5, screen:5, battery:4 }, size:'standard', img:'iphone-13-pro-alpine-green_out' },
+      { handle: 'apple-iphone-13-pro-max', name: 'iPhone 13 Pro Max',    price: 6290, prio: { price:2, camera:5, screen:5, battery:5 }, size:'max',      img:'iphone-13-pro-silver_out_394def96-b026-4ce0-a695-1e64e578a781' },
+      { handle: 'apple-iphone-14',         name: 'iPhone 14',            price: 6390, prio: { price:2, camera:4, screen:4, battery:4 }, size:'standard', img:'iphone-14-yellow_out' },
+    ];
+
+    function showStep(n) {
+      quiz.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+      const target = (n === 'result') ? quiz.querySelector('[data-step="result"]') : quiz.querySelector(`[data-step="${n}"]`);
+      target.classList.add('active');
+      if (n === 'result') {
+        counter.textContent = 'Din match';
+        progressFill.style.width = '100%';
+        restart.style.display = 'inline';
+      } else {
+        counter.textContent = `Spørsmål ${n} av ${totalSteps}`;
+        progressFill.style.width = ((n - 1) / totalSteps) * 100 + '%';
+        restart.style.display = 'none';
+      }
+    }
+
+    function score() {
+      // Filter by size + budget
+      let pool = catalog.filter(p => {
+        if (answers.size === 'mini' && p.size !== 'mini') return false;
+        if (answers.size === 'max' && p.size !== 'max') return false;
+        if (answers.size === 'standard' && p.size === 'mini') return false;
+        if (answers.budget === 'low' && p.price > 3500) return false;
+        if (answers.budget === 'high' && p.price < 4000) return false;
+        if (answers.budget === 'mid' && (p.price < 2500 || p.price > 6000)) return false;
+        return true;
+      });
+      if (pool.length === 0) pool = catalog; // fallback
+      // Score by priority
+      pool = pool.map(p => ({ ...p, score: (p.prio[answers.priority] || 3) * 2 + (p.prio[answers.priority] || 3) })).sort((a,b) => b.score - a.score);
+      return pool;
+    }
+
+    function showResult() {
+      const ranked = score();
+      const top = ranked[0];
+      document.getElementById('result-title').textContent = top.name;
+      document.getElementById('result-reason').textContent = `Best match basert på ${labels.priority[answers.priority]} + ${labels.size[answers.size]} + ${labels.budget[answers.budget]}.`;
+      const cards = ranked.slice(0, 3).map((p, i) => `
+        <a href="/products/${p.handle}" class="block bg-paper rounded-xl p-4 hover:shadow-lg transition-shadow ${i === 0 ? 'border-2 border-accent' : 'border border-line'}">
+          <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/${p.img}.jpg" alt="${p.name}" loading="lazy" style="width:100%;height:130px;object-fit:contain;background:#fafafa;border-radius:8px;">
+          <div class="font-bold mt-3 text-sm">${p.name}</div>
+          <div class="text-accent font-bold mt-1">Fra ${p.price.toLocaleString('no-NO')} kr</div>
+          ${i === 0 ? '<div class="text-[10px] uppercase font-bold text-accent mt-1 tracking-widest">★ Anbefalt</div>' : ''}
+        </a>
+      `).join('');
+      document.getElementById('result-cards').innerHTML = cards;
+      showStep('result');
+    }
+
+    const labels = {
+      priority: { price: 'lavest pris', camera: 'kamera', screen: 'skjerm', battery: 'batteri' },
+      size: { mini: 'mini-størrelse', standard: 'standard størrelse', max: 'Pro Max-størrelse' },
+      budget: { low: 'budsjett under 3000 kr', mid: 'budsjett 3000–5000 kr', high: 'budsjett over 5000 kr' },
+    };
+
+    quiz.addEventListener('click', e => {
+      const opt = e.target.closest('.quiz-option');
+      if (opt) {
+        const ans = opt.dataset.answer;
+        if (step === 1) { answers.priority = ans; step = 2; showStep(2); }
+        else if (step === 2) { answers.storage = ans; step = 3; showStep(3); }
+        else if (step === 3) { answers.size = ans; step = 4; showStep(4); }
+        else if (step === 4) { answers.budget = ans; showResult(); }
+      }
+      if (e.target === restart) {
+        step = 1;
+        for (const k in answers) delete answers[k];
+        showStep(1);
+      }
+    });
+  })();
+
+  // ───────── v2: Compare tool ─────────
+  (function(){
+    const grid = document.getElementById('compare-grid');
+    const chips = document.getElementById('compare-chips');
+    if (!grid) return;
+    const models = [
+      { handle:'apple-iphone-12',         name:'iPhone 12',         price:'2 590 kr', screen:'6.1"', camera:'Dobbelt 12MP', battery:'2815 mAh', weight:'164g', cond:'Pent / Godt' },
+      { handle:'apple-iphone-13',         name:'iPhone 13',         price:'4 390 kr', screen:'6.1"', camera:'Dobbelt 12MP', battery:'3240 mAh', weight:'173g', cond:'Pent / Godt' },
+      { handle:'apple-iphone-13-pro',     name:'iPhone 13 Pro',     price:'5 490 kr', screen:'6.1" ProMotion', camera:'Trippel 12MP', battery:'3095 mAh', weight:'203g', cond:'Nesten ny' },
+      { handle:'apple-iphone-13-pro-max', name:'iPhone 13 Pro Max', price:'6 290 kr', screen:'6.7" ProMotion', camera:'Trippel 12MP', battery:'4352 mAh', weight:'238g', cond:'Nesten ny / Pent' },
+      { handle:'apple-iphone-14',         name:'iPhone 14',         price:'6 390 kr', screen:'6.1"', camera:'Dobbelt 12MP', battery:'3279 mAh', weight:'172g', cond:'Nesten ny' },
+    ];
+    let selected = ['apple-iphone-13', 'apple-iphone-13-pro', 'apple-iphone-13-pro-max'];
+
+    function renderChips() {
+      chips.innerHTML = models.map(m => {
+        const on = selected.includes(m.handle);
+        return `<button class="px-4 py-2 rounded-full text-sm font-semibold transition-all ${on ? 'bg-accent text-white' : 'bg-paper text-ink hover:bg-ink/10'}" data-h="${m.handle}">${m.name}</button>`;
+      }).join('');
+    }
+    function render() {
+      const items = selected.map(h => models.find(m => m.handle === h)).filter(Boolean);
+      const rows = [
+        { label: 'Modell', key: 'name', best: null },
+        { label: 'Pris (fra)', key: 'price', best: null },
+        { label: 'Skjerm', key: 'screen', best: null },
+        { label: 'Kamera', key: 'camera', best: null },
+        { label: 'Batteri', key: 'battery', best: null },
+        { label: 'Vekt', key: 'weight', best: null },
+        { label: 'Tilstand', key: 'cond', best: null },
+      ];
+      // Highlight largest battery (numerical) and lightest weight
+      const batteries = items.map(i => parseInt(i.battery)).sort((a,b)=>b-a);
+      const weights = items.map(i => parseInt(i.weight)).sort((a,b)=>a-b);
+      const colCount = items.length || 1;
+      const colSize = colCount === 1 ? '1fr' : (colCount === 2 ? 'repeat(2, minmax(0,1fr))' : 'repeat(3, minmax(0,1fr))');
+      grid.style.gridTemplateColumns = `180px ${colSize}`;
+      let html = '';
+      rows.forEach(r => {
+        html += `<div class="compare-cell head">${r.label}</div>`;
+        items.forEach(i => {
+          let cls = 'compare-cell';
+          if (r.key === 'battery' && parseInt(i.battery) === batteries[0] && items.length > 1) cls += ' best';
+          if (r.key === 'weight' && parseInt(i.weight) === weights[0] && items.length > 1) cls += ' best';
+          if (r.key === 'price') cls += ' font-bold';
+          html += `<div class="${cls}">${i[r.key]}</div>`;
+        });
+      });
+      // Buy row
+      html += `<div class="compare-cell head">Kjøp</div>`;
+      items.forEach(i => {
+        html += `<div class="compare-cell"><a href="/products/${i.handle}" class="text-accent font-bold hover:underline">Se modell →</a></div>`;
+      });
+      grid.innerHTML = html;
+    }
+    chips.addEventListener('click', e => {
+      const b = e.target.closest('button[data-h]');
+      if (!b) return;
+      const h = b.dataset.h;
+      if (selected.includes(h)) {
+        selected = selected.filter(x => x !== h);
+      } else if (selected.length < 3) {
+        selected.push(h);
+      }
+      renderChips();
+      render();
+    });
+    renderChips();
+    render();
+  })();
+
+  // ───────── v2: Sparkle on test pass ─────────
+  if (window.gsap) {
+    const rows = document.querySelectorAll('.test-row');
+    const seen = new Set();
+    setInterval(() => {
+      rows.forEach((r, i) => {
+        if (r.classList.contains('passed') && !seen.has(i)) {
+          seen.add(i);
+          for (let k = 0; k < 3; k++) {
+            const s = document.createElement('span');
+            s.className = 'sparkle';
+            const dot = r.querySelector('.dot');
+            if (!dot) continue;
+            const dRect = dot.getBoundingClientRect();
+            s.style.left = (dRect.left + dRect.width/2) + 'px';
+            s.style.top  = (dRect.top + dRect.height/2 + window.scrollY) + 'px';
+            s.style.position = 'fixed';
+            document.body.appendChild(s);
+            gsap.to(s, { opacity: 1, duration: 0.1 });
+            gsap.to(s, { x: (Math.random()-0.5)*40, y: -16 - Math.random()*22, opacity: 0, duration: 0.7, delay: 0.05, ease: 'power1.out', onComplete: () => s.remove() });
+          }
+        }
+      });
+    }, 220);
+  }
+
+</script>
 <script>
   tailwind.config = {
     theme: {
@@ -234,6 +549,82 @@
   @media (max-width: 768px) {
     .hero-halo { width: 420px; height: 420px; }
   }
+
+  /* ───── v2 additions ───── */
+  .scroll-progress { position: fixed; left:0; top:0; height:2px; width:0; background:var(--accent); z-index:60; pointer-events:none; transition: width 80ms linear; }
+
+  /* Custom cursor */
+  @media (pointer: fine) {
+    body { cursor: none; }
+    a, button, input, select, textarea, [role="button"], label { cursor: none; }
+    .cursor-ring { position: fixed; left:0; top:0; width:24px; height:24px; border:1.5px solid #121212; border-radius:50%; pointer-events:none; z-index:9999; mix-blend-mode: difference; transform: translate(-50%,-50%); transition: width 220ms cubic-bezier(.2,.8,.2,1), height 220ms cubic-bezier(.2,.8,.2,1), background-color 220ms ease; }
+    .cursor-ring.is-hover { width:56px; height:56px; background: rgba(255,107,53,0.18); border-color: var(--accent); }
+  }
+  @media (pointer: coarse) { .cursor-ring { display:none; } }
+
+  /* Sist-solgt marquee */
+  .marquee-track { display:flex; gap:3rem; padding:0.9rem 0; white-space:nowrap; animation: marquee 40s linear infinite; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .marquee-item { display:inline-flex; align-items:center; gap:0.5rem; color:#666; font-size:0.92rem; }
+  .marquee-item .live-dot { width:7px; height:7px; border-radius:50%; background:#1B6E2F; box-shadow:0 0 0 0 rgba(27,110,47,0.6); animation: livePulse 1.6s ease-out infinite; }
+  @keyframes livePulse { 0%{box-shadow:0 0 0 0 rgba(27,110,47,0.6);} 70%{box-shadow:0 0 0 8px rgba(27,110,47,0);} 100%{box-shadow:0 0 0 0 rgba(27,110,47,0);} }
+
+  /* Magnetic buttons */
+  .magnetic { transition: transform 200ms cubic-bezier(.2,.8,.2,1); }
+
+  /* Spotlight on cards */
+  .spotlight { position:relative; overflow:hidden; }
+  .spotlight::before { content:''; position:absolute; left:var(--mx,50%); top:var(--my,50%); width:400px; height:400px; background:radial-gradient(circle, rgba(255,107,53,0.18) 0%, rgba(255,107,53,0) 60%); transform: translate(-50%,-50%); opacity:0; transition:opacity 220ms ease; pointer-events:none; }
+  .spotlight:hover::before { opacity:1; }
+
+  /* Pulse for sale badge */
+  .pulse-soft { animation: pulseSoft 2.8s ease-in-out infinite; }
+  @keyframes pulseSoft { 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.04);} }
+
+  /* Sparkle */
+  .sparkle { position:absolute; width:6px; height:6px; background:#1B6E2F; border-radius:50%; opacity:0; pointer-events:none; }
+
+  /* Image hotspots */
+  .hotspot { position:absolute; width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid var(--accent); box-shadow:0 4px 14px rgba(0,0,0,0.12); cursor:pointer; display:flex; align-items:center; justify-content:center; transition: transform 200ms ease; }
+  .hotspot::before { content:''; position:absolute; inset:-6px; border-radius:50%; border:2px solid var(--accent); opacity:0.4; animation: hotspotPulse 2s ease-in-out infinite; }
+  @keyframes hotspotPulse { 0%,100%{ transform: scale(1); opacity:0.4;} 50%{ transform: scale(1.3); opacity:0;} }
+  .hotspot:hover { transform: scale(1.15); }
+  .hotspot-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; }
+  .hotspot-popover { position:absolute; min-width:240px; max-width:280px; background:#fff; border-radius:12px; padding:1rem 1.1rem; box-shadow:0 18px 48px -12px rgba(0,0,0,0.25); z-index:5; opacity:0; transform: translateY(8px); pointer-events:none; transition: opacity 220ms ease, transform 220ms ease; }
+  .hotspot.active .hotspot-popover { opacity:1; transform: translateY(0); pointer-events:auto; }
+
+  /* Quiz */
+  .quiz-card { background:#fff; border-radius:16px; box-shadow:0 12px 40px -16px rgba(0,0,0,0.18); padding:2.5rem 2rem; max-width:680px; margin:0 auto; }
+  .quiz-step { display:none; }
+  .quiz-step.active { display:block; animation: quizIn 360ms cubic-bezier(.2,.8,.2,1); }
+  @keyframes quizIn { from { opacity:0; transform: translateY(12px);} to { opacity:1; transform: none;} }
+  .quiz-option { padding:1.1rem 1.4rem; border:1.5px solid #e8e8e8; border-radius:12px; cursor:pointer; transition: all 200ms ease; background:#fff; text-align:left; width:100%; font-weight:600; font-size:1rem; color:#121212; }
+  .quiz-option:hover { border-color:var(--accent); transform: translateY(-2px); box-shadow:0 8px 20px -8px rgba(255,107,53,0.25); }
+  .quiz-progress-bar { height:4px; background:#eee; border-radius:2px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--accent); width:0; transition: width 280ms cubic-bezier(.2,.8,.2,1); }
+
+  /* Compare */
+  .compare-grid { display:grid; grid-template-columns: 200px repeat(auto-fit, minmax(160px, 1fr)); gap:0; }
+  .compare-cell { padding:0.85rem 1rem; border-bottom:1px solid #ececec; }
+  .compare-cell.head { font-weight:600; color:#666; font-size:0.88rem; text-transform:uppercase; letter-spacing:0.04em; }
+  .compare-cell.best { color:var(--accent); font-weight:700; }
+  .compare-row { display:contents; }
+
+  /* Sustainability tree */
+  .tree-svg { transform-origin: center bottom; transition: transform 1400ms cubic-bezier(.2,.8,.2,1); }
+
+  /* Sticky mobile CTA */
+  .mobile-cta { position:fixed; left:1rem; right:1rem; bottom:1rem; z-index:55; background:var(--accent); color:#fff; padding:1rem 1.2rem; border-radius:12px; box-shadow:0 12px 40px -12px rgba(255,107,53,0.6); display:flex; justify-content:space-between; align-items:center; gap:0.75rem; transform: translateY(140%); transition: transform 320ms cubic-bezier(.2,.8,.2,1); }
+  .mobile-cta.show { transform: translateY(0); }
+  .mobile-cta .cta-text { font-weight:600; font-size:0.92rem; line-height:1.2; }
+  .mobile-cta .cta-text small { display:block; font-weight:400; opacity:0.85; font-size:0.78rem; margin-top:0.1rem; }
+  .mobile-cta .cta-btn { background:#fff; color:var(--accent); padding:0.55rem 0.95rem; border-radius:8px; font-weight:700; font-size:0.88rem; flex-shrink:0; }
+  @media (min-width: 750px) { .mobile-cta { display:none; } }
+
+  /* Trustpilot widget */
+  .tp-stars { color: #00b67a; letter-spacing: 0.08em; }
+  .tp-card { background:#fff; border-radius:12px; padding:1.4rem 1.5rem; border:1px solid #ececec; height:100%; }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -469,6 +860,48 @@
   </div>
 </section>
 
+
+<!-- ─────────── v2: IMAGE HOTSPOTS ─────────── -->
+<section id="hotspots-section" class="py-24 md:py-32 bg-white border-y border-line">
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-[420px_1fr] gap-12 items-center">
+    <div class="reveal">
+      <div class="text-xs tracking-widest uppercase text-ink/50 font-semibold mb-3">Gjennomsiktighet</div>
+      <h2 class="h-display text-3xl md:text-5xl font-black leading-[1.05] tracking-[-0.02em] mb-5">Vi tester <span class="it">alt</span> du ikke ser.</h2>
+      <p class="text-ink/70 text-[17px] leading-relaxed">Klikk på prikkene for å se nøyaktig hva som blir sjekket på hver iPhone som passerer gjennom vårt sertifiseringsverksted.</p>
+    </div>
+    <div class="relative reveal flex justify-center">
+      <div class="relative" style="width:min(420px,100%);">
+        <img src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-graphite_out.jpg" alt="iPhone test-zoner" loading="lazy" style="width:100%;height:auto;display:block;">
+        <!-- Hotspots (positioned in % of image) -->
+        <div class="hotspot" style="left:24%; top:16%;" data-info-title="Bak-kamera" data-info-body="Kamerasystemet kontrolleres mot Apples spec. Vi sjekker autofokus, OIS, makro og lavlys.">
+          <div class="hotspot-dot"></div>
+          <div class="hotspot-popover" style="left:36px; top:-10px;"><div class="font-bold mb-1">Bak-kamera</div><div class="text-ink/70 text-sm">Trippel 12 MP. Vi sjekker autofokus, stabilisering, makro og lavlys-ytelse.</div></div>
+        </div>
+        <div class="hotspot" style="left:78%; top:13%;" data-info-title="Front-kamera" data-info-body="12 MP TrueDepth. Brukes for Face ID — sjekkes med levende ansikt.">
+          <div class="hotspot-dot"></div>
+          <div class="hotspot-popover" style="right:36px; top:-10px;"><div class="font-bold mb-1">TrueDepth</div><div class="text-ink/70 text-sm">12 MP front-kamera + sensorer for Face ID. Sjekkes mot levende ansikt.</div></div>
+        </div>
+        <div class="hotspot" style="left:50%; top:48%;" data-info-title="Skjerm">
+          <div class="hotspot-dot"></div>
+          <div class="hotspot-popover" style="left:36px; top:-10px;"><div class="font-bold mb-1">OLED Super Retina</div><div class="text-ink/70 text-sm">Sjekkes for døde piksler, brennmerker, fargenøyaktighet og touch-respons.</div></div>
+        </div>
+        <div class="hotspot" style="left:92%; top:55%;" data-info-title="Knapper">
+          <div class="hotspot-dot"></div>
+          <div class="hotspot-popover" style="right:36px; top:-10px;"><div class="font-bold mb-1">Sideknapper</div><div class="text-ink/70 text-sm">Power, volum + lyd/stille-bryter. Hver knapp testes 50 ganger.</div></div>
+        </div>
+        <div class="hotspot" style="left:50%; top:92%;" data-info-title="Lade-port">
+          <div class="hotspot-dot"></div>
+          <div class="hotspot-popover" style="left:36px; top:-30px;"><div class="font-bold mb-1">Lightning-port</div><div class="text-ink/70 text-sm">Testes med originalt Apple-tilbehør for full ladehastighet og dataoverføring.</div></div>
+        </div>
+        <div class="hotspot" style="left:10%; top:55%;" data-info-title="Batteri">
+          <div class="hotspot-dot"></div>
+          <div class="hotspot-popover" style="left:36px; top:-10px;"><div class="font-bold mb-1">Batterihelse</div><div class="text-ink/70 text-sm">Minimum 80%. Vi logger Apples interne tall — ikke estimater.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─────────── STATS BAND ─────────── -->
 <section class="bg-ink text-white py-20 md:py-28 relative overflow-hidden">
   <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 20% 20%, #FF6B35, transparent 40%), radial-gradient(circle at 80% 60%, #FF6B35, transparent 40%);"></div>
@@ -498,6 +931,50 @@
         </div>
         <div class="text-[13px] text-white/55 mt-2 font-medium">testet før salg</div>
       </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ─────────── v2: SIST SOLGT MARQUEE ─────────── -->
+<section class="py-3 bg-paper border-y border-line overflow-hidden">
+  <div class="marquee-track" id="marquee-track">
+    <!-- items injected by JS, duplicated for seamless loop -->
+  </div>
+</section>
+
+<!-- ─────────── v2: TRUSTPILOT ─────────── -->
+<section class="py-24 md:py-32 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center reveal mb-10">
+      <div class="inline-flex items-center gap-3 mb-3">
+        <span class="tp-stars text-2xl">★★★★★</span>
+        <span class="font-bold text-lg">4.7 / 5</span>
+      </div>
+      <div class="text-ink/60 text-sm">Basert på <strong>247</strong> verifiserte anmeldelser på Trustpilot</div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div class="tp-card reveal">
+        <div class="tp-stars mb-2">★★★★★</div>
+        <p class="text-ink leading-relaxed mb-3">"Fikk en iPhone 13 som så helt ny ut. Pakket pent, levert dagen etter. Verdt hver krone."</p>
+        <div class="text-sm text-ink/60"><strong>Marius L.</strong> · Oslo</div>
+      </div>
+      <div class="tp-card reveal">
+        <div class="tp-stars mb-2">★★★★★</div>
+        <p class="text-ink leading-relaxed mb-3">"Skeptisk til brukt, men 14 dagers åpent kjøp var avgjørende. Beholdt den."</p>
+        <div class="text-sm text-ink/60"><strong>Ingrid B.</strong> · Trondheim</div>
+      </div>
+      <div class="tp-card reveal">
+        <div class="tp-stars mb-2">★★★★★</div>
+        <p class="text-ink leading-relaxed mb-3">"Sammenlignet med Power og Komplett. Telemarked var rimeligst — og hadde best kommunikasjon."</p>
+        <div class="text-sm text-ink/60"><strong>Henrik N.</strong> · Bergen</div>
+      </div>
+    </div>
+    <div class="text-center mt-10 reveal">
+      <a href="https://www.trustpilot.com/review/telemarked.no" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-accent font-semibold hover:underline">
+        Se alle anmeldelser på Trustpilot
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     </div>
   </div>
 </section>
@@ -591,6 +1068,73 @@
   </div>
 </section>
 
+
+<!-- ─────────── v2: QUIZ ─────────── -->
+<section id="quiz" class="py-24 md:py-32 bg-paper">
+  <div class="max-w-3xl mx-auto px-6 text-center mb-10">
+    <div class="text-xs tracking-widest uppercase text-ink/50 font-semibold mb-3">Personlig anbefaling</div>
+    <h2 class="h-display text-3xl md:text-5xl font-black leading-[1.05] tracking-[-0.02em]">Hvilken iPhone passer <span class="it">deg?</span></h2>
+    <p class="text-ink/70 text-[17px] mt-4">4 spørsmål. 30 sekunder. En anbefaling som faktisk passer.</p>
+  </div>
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="quiz-card" id="quiz">
+      <div class="flex items-center justify-between mb-6">
+        <div class="text-sm font-semibold text-ink/60" id="quiz-counter">Spørsmål 1 av 4</div>
+        <button class="text-sm text-ink/50 hover:text-ink" id="quiz-restart" style="display:none;">Start på nytt</button>
+      </div>
+      <div class="quiz-progress-bar mb-8"><div class="quiz-progress-fill" id="quiz-progress"></div></div>
+
+      <div class="quiz-step active" data-step="1">
+        <h3 class="text-xl md:text-2xl font-bold mb-6">Hva er viktigst for deg?</h3>
+        <div class="grid gap-3">
+          <button class="quiz-option" data-answer="price">💸 Lavest mulig pris</button>
+          <button class="quiz-option" data-answer="camera">📸 Kamera-kvalitet</button>
+          <button class="quiz-option" data-answer="screen">🖼️ Skjerm + visuell ytelse</button>
+          <button class="quiz-option" data-answer="battery">🔋 Lang batterilevetid</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="2">
+        <h3 class="text-xl md:text-2xl font-bold mb-6">Hvor mye lagring trenger du?</h3>
+        <div class="grid gap-3">
+          <button class="quiz-option" data-answer="small">64–128 GB — bilder + apper</button>
+          <button class="quiz-option" data-answer="mid">256 GB — full mediaopplevelse</button>
+          <button class="quiz-option" data-answer="big">512 GB+ — proff bruk</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="3">
+        <h3 class="text-xl md:text-2xl font-bold mb-6">Foretrukket størrelse?</h3>
+        <div class="grid gap-3">
+          <button class="quiz-option" data-answer="mini">Mini — kompakt, én hånd</button>
+          <button class="quiz-option" data-answer="standard">Standard — balansert</button>
+          <button class="quiz-option" data-answer="max">Pro Max — størst skjerm</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="4">
+        <h3 class="text-xl md:text-2xl font-bold mb-6">Budsjett?</h3>
+        <div class="grid gap-3">
+          <button class="quiz-option" data-answer="low">Under 3 000 kr</button>
+          <button class="quiz-option" data-answer="mid">3 000 – 5 000 kr</button>
+          <button class="quiz-option" data-answer="high">Over 5 000 kr</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="result">
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent rounded-full text-xs font-bold tracking-widest uppercase mb-3">Din match</div>
+          <h3 class="text-2xl md:text-3xl font-black" id="result-title">iPhone 13</h3>
+          <p class="text-ink/70 mt-2" id="result-reason">Basert på dine svar.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4" id="result-cards">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─────────── CONDITIONS ─────────── -->
 <section id="conditions" class="py-24 md:py-32 bg-white border-y border-line">
   <div class="max-w-[1280px] mx-auto px-5 md:px-8">
@@ -642,6 +1186,28 @@
           Tydelige riper og småmerker. Funksjonen er fortsatt 100% — perfekt for den prisbevisste.
         </p>
         <div class="text-[13px] text-yellow-700 font-semibold">Spar 45–55% mot ny</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ─────────── v2: COMPARE ─────────── -->
+<section id="compare" class="py-24 md:py-32 bg-paper">
+  <div class="max-w-3xl mx-auto px-6 text-center mb-10">
+    <div class="text-xs tracking-widest uppercase text-ink/50 font-semibold mb-3">Sammenlign</div>
+    <h2 class="h-display text-3xl md:text-5xl font-black leading-[1.05] tracking-[-0.02em]">Velg modeller — se forskjellen.</h2>
+    <p class="text-ink/70 text-[17px] mt-4">Inntil 3 modeller side ved side. Beste i hver kategori uthevet.</p>
+  </div>
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)]">
+      <div class="flex flex-wrap gap-3 justify-center mb-8" id="compare-chips">
+        <!-- Chips populated by JS -->
+      </div>
+      <div class="overflow-x-auto">
+        <div class="compare-grid" id="compare-grid">
+          <!-- populated by JS -->
+        </div>
       </div>
     </div>
   </div>
@@ -762,6 +1328,32 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ─────────── v2: SUSTAINABILITY ─────────── -->
+<section id="sustain" class="py-24 md:py-32 bg-white border-y border-line">
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-[1fr_420px] gap-12 items-center">
+    <div class="reveal">
+      <div class="text-xs tracking-widest uppercase font-semibold mb-3" style="color:#1B6E2F;">Bærekraft</div>
+      <h2 class="h-display text-3xl md:text-5xl font-black leading-[1.05] tracking-[-0.02em] mb-5">Vi har spart <span style="color:#1B6E2F;" id="co2-counter" data-target="12400">0</span> kg CO₂.</h2>
+      <p class="text-ink/70 text-[17px] leading-relaxed mb-4">Hver brukt iPhone som ikke produseres på nytt sparer rundt 70 kg CO₂. Sammen med våre kunder har vi spart <strong id="co2-trip-eq">47</strong> bilreiser Oslo–Trondheim — og motvirket tonn med elektronisk avfall.</p>
+      <p class="text-sm text-ink/50">Tall basert på Apples produkt-LCA-rapporter og Vegvesenets utslippsdata.</p>
+    </div>
+    <div class="reveal flex justify-center">
+      <svg id="tree-svg" class="tree-svg" width="260" height="320" viewBox="0 0 260 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: scale(0.4);">
+        <!-- ground -->
+        <ellipse cx="130" cy="305" rx="100" ry="10" fill="#1B6E2F" fill-opacity="0.15"/>
+        <!-- trunk -->
+        <rect x="121" y="200" width="18" height="110" fill="#6E4426" rx="3"/>
+        <!-- leaves: 3 cluster bubbles -->
+        <circle cx="130" cy="160" r="78" fill="#2D8C3D"/>
+        <circle cx="85" cy="190" r="48" fill="#3FA94F"/>
+        <circle cx="175" cy="190" r="48" fill="#3FA94F"/>
+        <circle cx="130" cy="115" r="42" fill="#5BC56B"/>
+      </svg>
     </div>
   </div>
 </section>
@@ -1049,6 +1641,17 @@
     }
   })();
 </script>
+
+
+<!-- v2: scroll progress bar -->
+<div class="scroll-progress" id="scroll-progress"></div>
+<!-- v2: custom cursor -->
+<div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
+<!-- v2: sticky mobile CTA -->
+<aside class="mobile-cta" id="mobile-cta">
+  <div class="cta-text">Brukte iPhones med garanti<small>Fri frakt · 14 dagers åpent kjøp</small></div>
+  <a href="#shop" class="cta-btn">Se utvalg →</a>
+</aside>
 
 </body>
 </html>

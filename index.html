@@ -706,6 +706,45 @@
   .product-card .sale-badge { left: 12px !important; right: auto !important; top: 12px !important; }
   .product-card .pill { right: 12px !important; left: auto !important; top: 12px !important; }
 
+
+  /* v2.5: kill the Tailwind drop-shadow filter that breaks mix-blend-mode */
+  #hero-phone {
+    filter: none !important;
+    mix-blend-mode: multiply;
+  }
+  /* Add shadow on parent instead, since filter on img killed blending */
+  #hero-phone {
+    /* No box-shadow on transparent regions, but a subtle one underneath the visible phone */
+  }
+  /* Hero right column gets a soft shadow on its bg-blob instead of on the image */
+  .hero-phone-wrap {
+    display: inline-block;
+    position: relative;
+    z-index: 10;
+    background: transparent;
+  }
+  .hero-phone-wrap::after {
+    /* Drop a ground-shadow below the phone, not on the white photo edges */
+    content: '';
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: -10px;
+    height: 22px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.22) 0%, transparent 70%);
+    filter: blur(8px);
+    z-index: -1;
+  }
+
+
+  /* v2.5: bump checkpoints — make them unmissable */
+  .phone-cp { width:44px !important; height:44px !important; z-index:10 !important; border-width:4px !important; }
+  .phone-cp::after { width:18px !important; height:18px !important; }
+  .phone-cp::before { font-size:12px !important; padding:6px 12px !important; }
+  /* Force the checkpoints to be visible even before .on is toggled (for debugging) — semi-transparent */
+  .phone-cp { opacity: 0.18; transform: translate(-50%,-50%) scale(0.85); }
+  .phone-cp.on { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -792,10 +831,10 @@
       <div class="absolute inset-0 flex items-center justify-center">
         <div class="w-[300px] md:w-[380px] aspect-square rounded-full bg-gradient-to-br from-accent-soft to-transparent"></div>
       </div>
-      <img id="hero-phone"
+      <span class="hero-phone-wrap"><img id="hero-phone"
            src="https://cdn.shopify.com/s/files/1/0873/4513/5898/files/iphone-13-pro-alpine-green_out.jpg"
            alt="iPhone 13 Pro alpine green"
-           class="relative z-10 max-h-[400px] md:max-h-[600px] w-auto float-idle drop-shadow-[0_40px_60px_rgba(18,18,18,0.18)]"/>
+           class="relative z-10 max-h-[400px] md:max-h-[600px] w-auto float-idle drop-shadow-[0_40px_60px_rgba(18,18,18,0.18)]"/></span>
 
       <!-- Floating price tag -->
       <div class="hidden md:block absolute top-[10%] right-[-10px] bg-white rounded-2xl shadow-card px-4 py-3 z-20 reveal">
@@ -1325,9 +1364,9 @@
     <div class="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)]">
       <div class="flex flex-wrap gap-3 justify-center mb-8" id="compare-chips"><button data-h="apple-iphone-13" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid #FF6B35;background:#FF6B35;color:#fff;cursor:pointer;">✓ iPhone 13</button><button data-h="apple-iphone-13-pro" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid #FF6B35;background:#FF6B35;color:#fff;cursor:pointer;">✓ iPhone 13 Pro</button><button data-h="apple-iphone-13-pro-max" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid #FF6B35;background:#FF6B35;color:#fff;cursor:pointer;">✓ iPhone 13 Pro Max</button></div>
       <div class="overflow-x-auto">
-        <div class="compare-grid" id="compare-grid">
+        <div class="compare-grid" id="compare-grid" style="grid-template-columns: 180px repeat(3, minmax(0, 1fr));">
           <!-- v2.4: static fallback (overwritten by JS if it runs) -->
-          <div data-fallback="1" style="display:grid;grid-template-columns:180px repeat(3,minmax(0,1fr));">
+          
             <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Modell</div>
             <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">iPhone 13</div>
             <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">iPhone 13 Pro</div>
@@ -1359,8 +1398,8 @@
             <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Kjøp</div>
             <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a></div>
             <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13-pro" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a></div>
-            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13-pro-max" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a></div>
-          </div></div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13-pro-max" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a>
+</div></div>
       </div>
     </div>
   </div>

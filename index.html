@@ -230,8 +230,9 @@
     });
   })();
 
-  // ───────── v2.2: Compare tool (inline styles — Tailwind play CDN doesn't compile runtime-added classes) ─────────
+  // ───────── v2.4: Compare tool (try/catch protected) ─────────
   (function(){
+    try {
     const grid = document.getElementById('compare-grid');
     const chips = document.getElementById('compare-chips');
     if (!grid || !chips) return;
@@ -310,6 +311,7 @@
     });
     renderChips();
     render();
+    } catch (err) { console.error("[Compare]", err); }
   })();
 
   // ───────── v2: Sparkle on test pass ─────────
@@ -681,6 +683,29 @@
   .phone-checkpoint { position:absolute; width:14px; height:14px; border-radius:50%; background:#1B6E2F; border:2px solid #fff; box-shadow:0 4px 12px rgba(27,110,47,0.4); opacity:0; transform: scale(0.5); transition: opacity 240ms ease, transform 240ms cubic-bezier(.2,.8,.2,1); z-index: 6; pointer-events:none; }
   .phone-checkpoint.on { opacity:1; transform: scale(1); }
 
+
+  /* v2.4: phone test feedback — visible checkpoints + count + fill */
+  .phone-fx { position:absolute; inset:0; pointer-events:none; }
+  .phone-cp { position:absolute; width:32px; height:32px; border-radius:50%; background:#FFFFFF; border:3px solid #1B6E2F; box-shadow:0 6px 18px rgba(27,110,47,0.45), 0 0 0 0 rgba(27,110,47,0.4); opacity:0; transform: translate(-50%,-50%) scale(0.4); transition: opacity 320ms cubic-bezier(.2,.8,.2,1), transform 320ms cubic-bezier(.2,1.6,.4,1); display:flex; align-items:center; justify-content:center; }
+  .phone-cp::after { content:''; width:14px; height:14px; background:#1B6E2F; border-radius:50%; box-shadow:inset 0 0 0 3px #fff; }
+  .phone-cp.on { opacity:1; transform: translate(-50%,-50%) scale(1); animation: cpPulse 1.4s ease-out 0s 1; }
+  @keyframes cpPulse { 0% { box-shadow:0 6px 18px rgba(27,110,47,0.45), 0 0 0 0 rgba(27,110,47,0.7); } 100% { box-shadow:0 6px 18px rgba(27,110,47,0.45), 0 0 0 20px rgba(27,110,47,0); } }
+  .phone-cp::before { content: attr(data-label); position:absolute; left:50%; bottom: calc(100% + 8px); transform: translateX(-50%); background:#121212; color:#fff; font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; white-space:nowrap; opacity:0; transition:opacity 220ms ease; pointer-events:none; }
+  .phone-cp.recent::before { opacity:1; }
+  .phone-fill { position:absolute; left:0; right:0; bottom:0; height:0%; background: linear-gradient(0deg, rgba(27,110,47,0.32) 0%, rgba(27,110,47,0.08) 70%, rgba(27,110,47,0) 100%); pointer-events:none; transition: height 420ms cubic-bezier(.2,.8,.2,1); z-index:3; }
+  .phone-fill::after { content:''; position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg, transparent 0%, #1B6E2F 30%, #1B6E2F 70%, transparent 100%); box-shadow:0 0 16px 4px rgba(27,110,47,0.6); }
+  .phone-count { position:absolute; left:50%; top:-44px; transform: translateX(-50%); background:#121212; color:#fff; padding:8px 16px; border-radius:999px; font-size:14px; font-weight:700; letter-spacing:0.02em; box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
+  .phone-count .muted { color:#888; font-weight:500; margin-left:2px; }
+
+
+  /* v2.4: drop the white-card frame on product cards — image sits on shadow alone */
+  .product-card { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
+  .product-card > div:first-child { background: #FAFAF8 !important; border-radius: 24px; box-shadow: 0 18px 40px -18px rgba(0,0,0,0.18); overflow: hidden; }
+  .product-card .pill, .product-card .sale-badge { z-index: 3; }
+  /* Sale-badge: top-left so it doesn't sit on the condition pill (which lives top-right) */
+  .product-card .sale-badge { left: 12px !important; right: auto !important; top: 12px !important; }
+  .product-card .pill { right: 12px !important; left: auto !important; top: 12px !important; }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -857,43 +882,7 @@
 
 </section>
 
-<!-- ─────────── USP ROW ─────────── -->
-<section class="py-16 md:py-24 bg-white border-y border-line">
-  <div class="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
-    <!-- 1 -->
-    <div class="usp reveal">
-      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h13l2 4h3v6h-2"/><path d="M3 7v10h2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M10 17h5"/></svg>
-      </div>
-      <div class="text-[16px] font-semibold mb-1">Gratis frakt</div>
-      <div class="text-[14px] text-ink/55 leading-relaxed">På ordre over 500 kr.<br>Sendt på 1–2 dager.</div>
-    </div>
-    <!-- 2 -->
-    <div class="usp reveal">
-      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>
-      </div>
-      <div class="text-[16px] font-semibold mb-1">14 dagers åpent kjøp</div>
-      <div class="text-[14px] text-ink/55 leading-relaxed">Ikke fornøyd? Send tilbake.<br>Vi refunderer fullt beløp.</div>
-    </div>
-    <!-- 3 -->
-    <div class="usp reveal">
-      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M10 7h4"/><path d="m9.5 12 1.7 1.7L15 10"/></svg>
-      </div>
-      <div class="text-[16px] font-semibold mb-1">14-punkts test</div>
-      <div class="text-[14px] text-ink/55 leading-relaxed">Hver telefon kontrolleres<br>av sertifisert tekniker.</div>
-    </div>
-    <!-- 4 -->
-    <div class="usp reveal">
-      <div class="w-12 h-12 rounded-2xl bg-accent-soft flex items-center justify-center mb-5 text-accent">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
-      </div>
-      <div class="text-[16px] font-semibold mb-1">1 års garanti</div>
-      <div class="text-[14px] text-ink/55 leading-relaxed">Full garanti på alle<br>komponenter og batteri.</div>
-    </div>
-  </div>
-</section>
+<!-- v2.4: USP row removed; trust band carries it -->
 
 <!-- ─────────── KILLER: SCROLL-DRIVEN TESTING ─────────── -->
 <section id="testing" class="relative bg-paper py-24 md:py-32">
@@ -955,22 +944,28 @@
             <!-- Certified stamp -->
             <div id="cert-stamp" class="stamp">
               <div class="ring"></div>
-            <!-- v2.2: progressive scan fill + zone checkpoints -->
-            <div class="phone-scan-fill" id="phone-scan-fill"></div>
-            <div class="phone-checkpoint" id="cp-battery" style="left:78%; top:88%;"></div>
-            <div class="phone-checkpoint" id="cp-screen" style="left:50%; top:50%;"></div>
-            <div class="phone-checkpoint" id="cp-front-cam" style="left:50%; top:8%;"></div>
-            <div class="phone-checkpoint" id="cp-back-cam" style="left:20%; top:18%;"></div>
-            <div class="phone-checkpoint" id="cp-faceid" style="left:38%; top:8%;"></div>
-            <div class="phone-checkpoint" id="cp-speaker" style="left:50%; top:92%;"></div>
-            <div class="phone-checkpoint" id="cp-mic" style="left:62%; top:92%;"></div>
-            <div class="phone-checkpoint" id="cp-buttons" style="left:96%; top:30%;"></div>
-            <div class="phone-checkpoint" id="cp-port" style="left:45%; top:96%;"></div>
-            <div class="phone-checkpoint" id="cp-wifi" style="left:30%; top:65%;"></div>
-            <div class="phone-checkpoint" id="cp-bluetooth" style="left:60%; top:60%;"></div>
-            <div class="phone-checkpoint" id="cp-gps" style="left:40%; top:75%;"></div>
-            <div class="phone-checkpoint" id="cp-vibration" style="left:70%; top:45%;"></div>
-            <div class="phone-checkpoint" id="cp-touch" style="left:25%; top:35%;"></div>
+            <!-- v2.4: zone checkpoints (positioned over phone image) -->
+            <div class="phone-fx" aria-hidden="true">
+              <div class="phone-cp" id="cp-battery" data-label="Batteri" style="left:78%; top:88%;"></div>
+              <div class="phone-cp" id="cp-screen" data-label="Skjerm" style="left:50%; top:50%;"></div>
+              <div class="phone-cp" id="cp-front-cam" data-label="Front-kamera" style="left:55%; top:9%;"></div>
+              <div class="phone-cp" id="cp-back-cam" data-label="Bak-kamera" style="left:21%; top:17%;"></div>
+              <div class="phone-cp" id="cp-faceid" data-label="Face ID" style="left:45%; top:9%;"></div>
+              <div class="phone-cp" id="cp-speaker" data-label="Høyttalere" style="left:50%; top:5%;"></div>
+              <div class="phone-cp" id="cp-mic" data-label="Mikrofon" style="left:50%; top:96%;"></div>
+              <div class="phone-cp" id="cp-buttons" data-label="Knapper" style="left:96%; top:28%;"></div>
+              <div class="phone-cp" id="cp-port" data-label="Lade-port" style="left:50%; top:99%;"></div>
+              <div class="phone-cp" id="cp-wifi" data-label="WiFi" style="left:30%; top:62%;"></div>
+              <div class="phone-cp" id="cp-bluetooth" data-label="Bluetooth" style="left:65%; top:62%;"></div>
+              <div class="phone-cp" id="cp-gps" data-label="GPS" style="left:35%; top:78%;"></div>
+              <div class="phone-cp" id="cp-vibration" data-label="Vibrasjon" style="left:65%; top:78%;"></div>
+              <div class="phone-cp" id="cp-touch" data-label="Touch-respons" style="left:50%; top:38%;"></div>
+              <div class="phone-fill" id="phone-fill"></div>
+              <div class="phone-count">
+                <span id="phone-count-num">0</span><span class="muted">/14</span>
+              </div>
+            </div>
+
 
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v7c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
               <div class="text-[12px] font-bold uppercase tracking-[0.18em] mt-2">Sertifisert</div>
@@ -1328,13 +1323,44 @@
   </div>
   <div class="max-w-6xl mx-auto px-6">
     <div class="bg-white rounded-2xl p-6 md:p-8 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.18)]">
-      <div class="flex flex-wrap gap-3 justify-center mb-8" id="compare-chips">
-        <!-- Chips populated by JS -->
-      </div>
+      <div class="flex flex-wrap gap-3 justify-center mb-8" id="compare-chips"><button data-h="apple-iphone-13" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid #FF6B35;background:#FF6B35;color:#fff;cursor:pointer;">✓ iPhone 13</button><button data-h="apple-iphone-13-pro" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid #FF6B35;background:#FF6B35;color:#fff;cursor:pointer;">✓ iPhone 13 Pro</button><button data-h="apple-iphone-13-pro-max" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.2rem;border-radius:999px;font-size:0.92rem;font-weight:600;border:1.5px solid #FF6B35;background:#FF6B35;color:#fff;cursor:pointer;">✓ iPhone 13 Pro Max</button></div>
       <div class="overflow-x-auto">
         <div class="compare-grid" id="compare-grid">
-          <!-- populated by JS -->
-        </div>
+          <!-- v2.4: static fallback (overwritten by JS if it runs) -->
+          <div data-fallback="1" style="display:grid;grid-template-columns:180px repeat(3,minmax(0,1fr));">
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Modell</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">iPhone 13</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">iPhone 13 Pro</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">iPhone 13 Pro Max</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Pris (fra)</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:700;font-size:1.05rem;">4 390 kr</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:700;font-size:1.05rem;">5 490 kr</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:700;font-size:1.05rem;">6 290 kr</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Skjerm</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">6.1"</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">6.1" ProMotion</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">6.7" ProMotion</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Kamera</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">Dobbelt 12MP</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">Trippel 12MP</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">Trippel 12MP</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Batteri</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">3240 mAh</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">3095 mAh</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;color:#FF6B35;font-weight:700;">4352 mAh</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Vekt</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;color:#FF6B35;font-weight:700;">173g</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">203g</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">238g</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Tilstand</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">Pent / Godt</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">Nesten ny</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;">Nesten ny / Pent</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;font-weight:600;color:#666;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Kjøp</div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a></div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13-pro" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a></div>
+            <div style="padding:0.95rem 1rem;border-bottom:1px solid #ececec;"><a href="/products/apple-iphone-13-pro-max" style="color:#FF6B35;font-weight:700;text-decoration:none;">Se modell →</a></div>
+          </div></div>
       </div>
     </div>
   </div>
@@ -1700,13 +1726,23 @@
         if (passed >= total) stamp.classList.add('show');
         else stamp.classList.remove('show');
 
-        // v2.2: scan fill + checkpoints
-        const fill = document.getElementById('phone-scan-fill');
-        if (fill) fill.style.height = (passed / total * 100) + '%';
+        // v2.4: visible checkpoints + count + fill
+        const fillEl = document.getElementById('phone-fill');
+        if (fillEl) fillEl.style.height = (passed / total * 100) + '%';
+        const countNum = document.getElementById('phone-count-num');
+        if (countNum) countNum.textContent = passed;
         const cpIds = ['cp-battery','cp-screen','cp-front-cam','cp-back-cam','cp-faceid','cp-speaker','cp-mic','cp-buttons','cp-port','cp-wifi','cp-bluetooth','cp-gps','cp-vibration','cp-touch'];
         cpIds.forEach((id, idx) => {
           const el = document.getElementById(id);
-          if (el) el.classList.toggle('on', idx < passed);
+          if (!el) return;
+          const wasOn = el.classList.contains('on');
+          const shouldBeOn = idx < passed;
+          el.classList.toggle('on', shouldBeOn);
+          // Show label briefly when newly turning on
+          if (!wasOn && shouldBeOn) {
+            el.classList.add('recent');
+            setTimeout(() => el.classList.remove('recent'), 1100);
+          }
         });
 
         // Scan beam — animate y-position with progress within section

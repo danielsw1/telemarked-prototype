@@ -1044,6 +1044,144 @@
     .report-progress-bar { width: 80px; }
   }
 
+  /* ───────── v2.18: Test protocol accordion ───────── */
+  .protocol-cta-wrap {
+    max-width: 920px;
+    margin: 28px auto 0;
+    display: flex;
+    justify-content: center;
+  }
+  .protocol-cta {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 18px 28px;
+    background: transparent;
+    border: 1px dashed rgba(18,18,18,0.18);
+    border-radius: 14px;
+    color: #1A1A1A;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 240ms ease, background 240ms ease, transform 240ms ease;
+    position: relative;
+  }
+  .protocol-cta:hover {
+    border-color: rgba(255,107,53,0.6);
+    border-style: solid;
+    background: rgba(255,107,53,0.04);
+    transform: translateY(-1px);
+  }
+  .protocol-cta-text {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .protocol-cta-meta {
+    font-size: 12px; color: rgba(18,18,18,0.5); font-weight: 500;
+  }
+  .protocol-cta-chev {
+    position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    color: rgba(18,18,18,0.45);
+    transition: transform 280ms cubic-bezier(.2,.8,.2,1);
+  }
+  .protocol-cta[aria-expanded="true"] .protocol-cta-chev { transform: translateY(-50%) rotate(180deg); }
+  .protocol-cta[aria-expanded="true"] {
+    border-color: rgba(18,18,18,0.18);
+    border-style: solid;
+  }
+
+  .protocol-full {
+    max-width: 920px;
+    margin: 28px auto 0;
+    overflow: hidden;
+    transition: max-height 600ms cubic-bezier(.2,.8,.2,1), opacity 480ms ease, margin-top 380ms ease;
+  }
+  .protocol-full[hidden] {
+    display: block !important;
+    max-height: 0; opacity: 0; margin-top: 0;
+    pointer-events: none;
+  }
+
+  .protocol-intro {
+    padding: 24px 0 28px;
+    border-top: 1px solid rgba(18,18,18,0.08);
+    margin-bottom: 8px;
+  }
+
+  .protocol-list { list-style: none; padding: 0; margin: 0; }
+  .protocol-item {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(18,18,18,0.06);
+  }
+  .protocol-item:last-child { border-bottom: none; }
+  .protocol-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700;
+    color: rgba(255,107,53,0.7);
+    line-height: 1;
+    padding-top: 2px;
+  }
+  .protocol-title {
+    font-size: 18px; font-weight: 700;
+    color: #1A1A1A;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .protocol-desc {
+    font-size: 14.5px; line-height: 1.65;
+    color: rgba(18,18,18,0.72);
+    margin: 0 0 12px;
+    max-width: 700px;
+  }
+  .protocol-desc em {
+    font-style: normal;
+    background: rgba(255,107,53,0.1);
+    padding: 0 4px;
+    border-radius: 3px;
+    color: #1A1A1A;
+    font-weight: 500;
+  }
+  .protocol-criteria {
+    display: inline-block;
+    font-size: 12.5px;
+    color: rgba(27,110,47,0.85);
+    background: rgba(27,110,47,0.08);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  .protocol-criteria span {
+    font-weight: 700;
+    color: #1B6E2F;
+    margin-right: 4px;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .protocol-outro {
+    margin-top: 36px;
+    padding: 22px 26px;
+    background: rgba(255,107,53,0.06);
+    border-left: 3px solid #FF6B35;
+    border-radius: 4px;
+    font-size: 14px; line-height: 1.6;
+    color: #1A1A1A;
+    font-weight: 500;
+  }
+
+  @media (max-width: 767px) {
+    .protocol-cta { padding: 16px 22px; }
+    .protocol-cta-chev { right: 14px; }
+    .protocol-item { grid-template-columns: 32px 1fr; gap: 14px; padding: 20px 0; }
+    .protocol-num { font-size: 18px; }
+    .protocol-title { font-size: 16px; }
+    .protocol-desc { font-size: 14px; }
+  }
+
 </style>
 </head>
 <body class="font-sans text-ink antialiased">
@@ -1327,6 +1465,217 @@
         </p>
       </footer>
     </article>
+
+    <!-- v2.18: Full test protocol — collapsed by default, expands below certificate -->
+    <div class="protocol-cta-wrap">
+      <button class="protocol-cta" id="protocol-cta" aria-expanded="false" aria-controls="protocol-full">
+        <span class="protocol-cta-text">Se hele testprotokollen</span>
+        <span class="protocol-cta-meta">Detaljert metodikk for hver av de 14 testene</span>
+        <svg class="protocol-cta-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="protocol-full" id="protocol-full" hidden>
+      <div class="protocol-intro">
+        <div class="text-[11px] uppercase tracking-[0.22em] text-ink/45 font-semibold mb-3">Testprotokoll v3.2 · gjeldende</div>
+        <p class="text-[15px] text-ink/70 leading-relaxed max-w-[640px]">
+          Hver test under er definert av Telemarked-teknikere i samråd med en autorisert Apple-reparatør.
+          Protokollen oppdateres ved nye iPhone-modeller eller nye iOS-versjoner. Spør oss om eldre revisjoner.
+        </p>
+      </div>
+
+      <ol class="protocol-list">
+        <li class="protocol-item">
+          <div class="protocol-num">01</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Batteri</h3>
+            <p class="protocol-desc">
+              Vi henter <em>Maximum Capacity %</em> og <em>Cycle Count</em> direkte fra Apples interne diagnostikk-API
+              (samme tall iPhone selv viser under Innstillinger → Batteri → Batterihelse) — ikke estimater fra tredjepart.
+              Telefoner under 85 % nedklassifiseres til "Pent / B" eller utelukkes. I tillegg kjører vi en 30-minutters
+              utladningstest fra 100 % til 50 % for å verifisere at det ikke er anomale spenningsfall som kan tyde på en
+              skadet celle.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> ≥ 85 % kapasitet · ingen "Service"-advarsel · lineær utladning</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">02</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Skjerm</h3>
+            <p class="protocol-desc">
+              Vi viser testbilder i ren hvit, ren svart og RGB-primærene over hele flaten for å avdekke døde piksler,
+              brennmerker (image retention) og uregelmessigheter i bakgrunnsbelysning. Fargenøyaktighet måles med en
+              kalibrert kolorimeter mot D65-hvitpunkt — ΔE skal være under 3 (synlig like som ny). Touch-respons mappes
+              fra kant til kant, inkludert hjørner og notch-området.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> 0 døde piksler · ΔE &lt; 3 · jevn bakgrunnsbelysning · full touch-dekning</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">03</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Front-kamera (TrueDepth)</h3>
+            <p class="protocol-desc">
+              Selfie-kamera, IR-prosjektor (dot projector) og IR-sensor testes samlet ved å registrere et test-ansikt for
+              Face ID. Hvis Face ID ikke kan registreres, eller kun fungerer i bestemte vinkler, indikerer det skade på
+              TrueDepth-modulen. Bilder tas i kontrollert lys for å sjekke autofokus og eksponering.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Face ID registrert ✓ · skarp autofokus · ingen IR-prosjektor-feilkode</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">04</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Bak-kamera (alle tre linser)</h3>
+            <p class="protocol-desc">
+              Vidvinkel (26 mm), ultravid (13 mm) og telefoto (77 mm) testes hver for seg. Autofokus-respons måles på en
+              fokus-tavle. Optisk bildestabilisator (OIS) på vidvinkel og tele verifiseres ved håndholdt sakte-eksponering.
+              Makro-modus testes på ultravid. Endelig sjekk: en lavlys-test i ~5 lux miljø for å avdekke sensorstøy.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Alle tre linser fungerer · OIS aktiv · ingen synlig støv på sensor</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">05</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Face ID</h3>
+            <p class="protocol-desc">
+              Etter at TrueDepth-modulen er verifisert (punkt 03), registreres et test-ansikt og opplåsing testes minst
+              tre ganger — én gang i sterkt lys, én gang i halvlys og én gang i nær-mørke. Hvis Face ID kun fungerer i
+              bestemte lysforhold, nedklassifiseres telefonen. Test-ansiktet slettes umiddelbart etter test.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> 3 av 3 opplåsinger i ulike lysforhold</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">06</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Høyttalere</h3>
+            <p class="protocol-desc">
+              Stereo-test via et 100 Hz – 15 kHz frekvens-sveip gjennom topp- og bunn-høyttaler. Tekniker lytter manuelt
+              etter sprek, raslende eller demping. Maks volum testes på en tone for å avdekke clipping eller distortion.
+              Vanlig issue på brukt-iPhone er støv i nettet — vi rens-blåser ved behov.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Begge høyttalere klare gjennom hele frekvensspekteret · ingen rasling</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">07</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Mikrofon</h3>
+            <p class="protocol-desc">
+              iPhone har tre mikrofoner: primær (bunn), front (for støy-undertrykking) og bak (for video). Vi tester
+              alle tre — telefon-samtale gjennom CarPlay-test, diktat-funksjon på låsskjerm, og lydopptak via Voice Memos.
+              Opptakene spilles av for å verifisere klarhet uten klipping eller bakgrunns-buzz.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Alle tre mikrofoner fanger ren lyd · ingen elektrisk støy</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">08</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Knapper</h3>
+            <p class="protocol-desc">
+              Power-knapp, volum opp, volum ned og lyd/stille-bryteren får hver 50 trykk for å sjekke at fjær-mekanikken
+              fortsatt klikker tilbake hver gang. Power-knapp får i tillegg dobbel- og trippel-klikk-test (Apple Pay,
+              tilgjengelighet). Lyd/stille-bryteren testes ved å veksle modus 20×.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> 50/50 klikk-respons · fjær returnerer · ingen "sticky" knapp</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">09</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Lade-port (Lightning)</h3>
+            <p class="protocol-desc">
+              Telefonen kobles til en original Apple 20 W USB-C → Lightning-kabel. Vi måler at hurtig-lading aktiveres
+              (visuelt: bør gå fra 0 → 50 % på ~30 min). Deretter testes dataoverføring via macOS Finder for å
+              verifisere full datasync. Visuell inspeksjon: vi blåser ut støv og sjekker for bøyde eller korroderte pinner.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Hurtig-lading aktiv · datasync funker · ingen synlig skade på pinner</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">10</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">WiFi</h3>
+            <p class="protocol-desc">
+              Tilkobling til både 2,4 GHz og 5 GHz nettverk verifiseres. Throughput-test kjøres mot lokal server for å
+              avdekke svake antenner — en iPhone som har vært utsatt for vannskade har ofte degradert WiFi-mottak.
+              Roaming-test: vi flytter telefonen mellom to access-points og sjekker at den bytter sømløst.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Begge bånd funker · throughput &gt; 100 Mbps på 5 GHz · stabil roaming</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">11</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Bluetooth</h3>
+            <p class="protocol-desc">
+              Paring med AirPods (eller annen Apple-godkjent enhet). Vi spiller av en låt i to minutter for å sjekke at
+              audio-streamen ikke har cut-outs. BLE-skanning kjøres for å verifisere at Find My-radioen fungerer (denne
+              brukes også for AirTags og Apple Continuity-funksjoner).
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Paring lykkes · 2 min stabil audio · BLE-skanning aktiv</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">12</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">GPS</h3>
+            <p class="protocol-desc">
+              Telefonen tas ut i åpent lys og vi måler tiden til første GPS-fix. Mål: innen 30 sekunder. Vi sammenligner
+              koordinatet med en kjent kontrollkoordinat for å verifisere nøyaktighet (skal være innen ±5 meter).
+              A-GPS (assistert via mobilnett) og ren GPS testes separat.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Fix &lt; 30 sek · nøyaktighet ±5 m · A-GPS aktiv</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">13</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Vibrasjon (Taptic Engine)</h3>
+            <p class="protocol-desc">
+              Taptic Engine testes via ulike modi: varsel-haptic, system-haptic (lock/unlock), og alarmrumling. Tekniker
+              lytter etter ruske-lyder som indikerer en slitt eller mekanisk skadet motor. En slitt Taptic-motor er
+              ofte tidlig varsel om at telefonen har falt i bakken.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Stille, jevn vibrasjon i alle modi · ingen rasling</div>
+          </div>
+        </li>
+
+        <li class="protocol-item">
+          <div class="protocol-num">14</div>
+          <div class="protocol-content">
+            <h3 class="protocol-title">Touch-respons</h3>
+            <p class="protocol-desc">
+              Multi-touch testes med opp til fem fingre samtidig på en testapp. Vi går spesielt nøye over kantene og
+              hjørnene — det er der digitizere oftest svikter etter fall. På modeller med 3D Touch / Haptic Touch
+              testes også trykk-følsomhet. Touch-skjermen skal respondere innen 50 ms over hele flaten.
+            </p>
+            <div class="protocol-criteria"><span>Krav:</span> Full kant-til-kant respons · multi-touch fungerer · &lt; 50 ms latency</div>
+          </div>
+        </li>
+      </ol>
+
+      <p class="protocol-outro">
+        Hvis ett eneste av de 14 punktene feiler, går telefonen tilbake i kø for reparasjon eller nedklassifisering.
+        Den selges aldri som "Nesten ny" hvis den ikke består alle 14.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -2036,6 +2385,62 @@
       reportList.appendChild(li);
     });
   }
+
+  // ───────── v2.18: Protocol accordion toggle ─────────
+  (function(){
+    const btn = document.getElementById('protocol-cta');
+    const panel = document.getElementById('protocol-full');
+    if (!btn || !panel) return;
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        panel.hidden = false;
+        // Measure target height
+        panel.style.maxHeight = 'none';
+        const h = panel.scrollHeight;
+        panel.style.maxHeight = '0px';
+        panel.style.opacity = '0';
+        panel.style.marginTop = '0px';
+        // Reflow then animate
+        requestAnimationFrame(() => {
+          panel.style.maxHeight = h + 'px';
+          panel.style.opacity = '1';
+          panel.style.marginTop = '28px';
+        });
+        // After transition, clear max-height so content can flow naturally
+        const cleanup = () => {
+          panel.style.maxHeight = 'none';
+          panel.removeEventListener('transitionend', cleanup);
+        };
+        panel.addEventListener('transitionend', cleanup, { once: true });
+        // Update label
+        btn.querySelector('.protocol-cta-text').textContent = 'Skjul testprotokollen';
+      } else {
+        // Set current height so we have something to transition from
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        requestAnimationFrame(() => {
+          panel.style.maxHeight = '0px';
+          panel.style.opacity = '0';
+          panel.style.marginTop = '0px';
+        });
+        const cleanup = () => {
+          panel.hidden = true;
+          panel.removeEventListener('transitionend', cleanup);
+        };
+        panel.addEventListener('transitionend', cleanup, { once: true });
+        btn.querySelector('.protocol-cta-text').textContent = 'Se hele testprotokollen';
+      }
+    }
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!isOpen);
+    });
+    // Auto-open if URL hash is #protokoll
+    if (window.location.hash === '#protokoll') {
+      setOpen(true);
+      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+    }
+  })();
 
   // ───────── v2.17: Scroll-driven report animation ─────────
   // Skip ScrollTrigger if ?testpct=N is set (testpct script takes over and we don't want scroll to override it)

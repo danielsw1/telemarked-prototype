@@ -554,12 +554,7 @@
   .scroll-progress { position: fixed; left:0; top:0; height:2px; width:0; background:var(--accent); z-index:60; pointer-events:none; transition: width 80ms linear; }
 
   /* Custom cursor */
-  @media (pointer: fine) {
-    body { cursor: none; }
-    a, button, input, select, textarea, [role="button"], label { cursor: none; }
-    .cursor-ring { position: fixed; left:0; top:0; width:24px; height:24px; border:1.5px solid #121212; border-radius:50%; pointer-events:none; z-index:9999; mix-blend-mode: difference; transform: translate(-50%,-50%); transition: width 220ms cubic-bezier(.2,.8,.2,1), height 220ms cubic-bezier(.2,.8,.2,1), background-color 220ms ease; }
-    .cursor-ring.is-hover { width:56px; height:56px; background: rgba(255,107,53,0.18); border-color: var(--accent); }
-  }
+  /* removed broken custom cursor block */
   @media (pointer: coarse) { .cursor-ring { display:none; } }
 
   /* Sist-solgt marquee */
@@ -624,6 +619,12 @@
   /* Trustpilot widget */
   .tp-stars { color: #00b67a; letter-spacing: 0.08em; }
   .tp-card { background:#fff; border-radius:12px; padding:1.4rem 1.5rem; border:1px solid #ececec; height:100%; }
+
+
+  /* v2 hotfix: neutralize broken custom cursor — let system cursor work */
+  body, a, button, input, select, textarea, [role="button"], label, .quiz-option, .hotspot, .product-card { cursor: auto; }
+  a, button, [role="button"], a[href], .quiz-option, .hotspot, .product-card, .btn-primary { cursor: pointer; }
+  .cursor-ring { display: none !important; }
 
 </style>
 </head>

@@ -1467,7 +1467,7 @@
     </article>
 
     <!-- v2.18: Full test protocol — collapsed by default, expands below certificate -->
-    <div class="protocol-cta-wrap">
+    <div class="protocol-cta-wrap" id="protokoll">
       <button class="protocol-cta" id="protocol-cta" aria-expanded="false" aria-controls="protocol-full">
         <span class="protocol-cta-text">Se hele testprotokollen</span>
         <span class="protocol-cta-meta">Detaljert metodikk for hver av de 14 testene</span>
@@ -1672,8 +1672,8 @@
       </ol>
 
       <p class="protocol-outro">
-        Hvis ett eneste av de 14 punktene feiler, går telefonen tilbake i kø for reparasjon eller nedklassifisering.
-        Den selges aldri som "Nesten ny" hvis den ikke består alle 14.
+        Hvis ett eneste av de 14 punktene feiler, går telefonen tilbake i kø for reparasjon.
+        Den selges aldri på Telemarked hvis den ikke består alle 14.
       </p>
     </div>
   </div>
@@ -2387,12 +2387,24 @@
   }
 
   // ───────── v2.18: Protocol accordion toggle ─────────
+  // Always starts closed. Click expands. We pin the button's viewport position during
+  // expansion so the browser's scroll-anchoring doesn't push the user down the page.
   (function(){
     const btn = document.getElementById('protocol-cta');
     const panel = document.getElementById('protocol-full');
     if (!btn || !panel) return;
+
+    // Disable scroll-anchoring on the panel + its parent so adding height doesn't
+    // re-anchor the viewport to whatever section is below it.
+    panel.style.overflowAnchor = 'none';
+    const sectionParent = panel.closest('section');
+    if (sectionParent) sectionParent.style.overflowAnchor = 'none';
+
     function setOpen(open) {
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      // Capture button's viewport position before any layout change
+      const btnRectBefore = btn.getBoundingClientRect().top;
+
       if (open) {
         panel.hidden = false;
         // Measure target height
@@ -2413,7 +2425,6 @@
           panel.removeEventListener('transitionend', cleanup);
         };
         panel.addEventListener('transitionend', cleanup, { once: true });
-        // Update label
         btn.querySelector('.protocol-cta-text').textContent = 'Skjul testprotokollen';
       } else {
         // Set current height so we have something to transition from
@@ -2430,16 +2441,23 @@
         panel.addEventListener('transitionend', cleanup, { once: true });
         btn.querySelector('.protocol-cta-text').textContent = 'Se hele testprotokollen';
       }
+
+      // Restore the button's viewport position right after the layout change kicks in.
+      // This prevents the user from being "thrown" to a different part of the page when
+      // the panel expands or collapses.
+      requestAnimationFrame(() => {
+        const btnRectAfter = btn.getBoundingClientRect().top;
+        const drift = btnRectAfter - btnRectBefore;
+        if (Math.abs(drift) > 0.5) {
+          window.scrollBy({ top: drift, behavior: 'instant' });
+        }
+      });
     }
+
     btn.addEventListener('click', () => {
       const isOpen = btn.getAttribute('aria-expanded') === 'true';
       setOpen(!isOpen);
     });
-    // Auto-open if URL hash is #protokoll
-    if (window.location.hash === '#protokoll') {
-      setOpen(true);
-      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
-    }
   })();
 
   // ───────── v2.17: Scroll-driven report animation ─────────
